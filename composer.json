@@ -1,6 +1,7 @@
 {
     "name": "quelyd/app",
     "require": {
-        "krugozor/database": "^1.0"
+        "krugozor/database": "^1.0",
+      "ext-mbstring": "*"
     }
 }

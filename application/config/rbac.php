@@ -7,18 +7,21 @@
  */
 
 return array (
-    'main.index'       => array ( 'guest', 'user', 'admin' ),
-    'auth.login'       => array ( 'guest' ),
-    'auth.register'    => array ( 'guest' ),
-    'auth.profile'     => array ( 'user', 'admin' ),
+    'main.index'    => array ( 'guest', 'user', 'admin' ),
+    'auth.login'    => array ( 'guest' ),
+    'auth.register' => array ( 'guest' ),
+    'auth.profile'  => array ( 'user', 'admin' ),
 
-    'quests.index'     => array ( 'guest', 'user', 'admin' ),
-    'quests.view'      => array ( 'guest', 'user', 'admin' ),
-    'quests.create'    => array ( 'user', 'admin' ),
-    'quests.update'    => array ( 'user', 'admin' ),
-    'quests.delete'    => array ( 'user', 'admin' ),
-    'quests.join'      => array ( 'user', 'admin' ),
+    'quests.index'  => array ( 'guest', 'user', 'admin' ),
+    'quests.view'   => array ( 'guest', 'user', 'admin' ),
+    'quests.create' => array ( 'user', 'admin' ),
+    'quests.update' => array ( 'user', 'admin' ),
+    'quests.delete' => array ( 'user', 'admin' ),
+    'quests.join'   => array ( 'user', 'admin' ),
 
     'admin.users.list' => array ( 'admin' ),
     'admin.users.edit' => array ( 'admin' ),
+
+    'api.auth.login'    => array ( 'guest' ),
+    'api.quests.create' => array ( 'user', 'admin' ),
 );

@@ -12,12 +12,21 @@ namespace application\core;
 abstract class Model
 {
 
-    private \application\lib\DB $_db;
+    private static ?\Krugozor\Database\Mysql $_connection = null;
 
 
-    public function __construct()
+    protected static function db() : \Krugozor\Database\Mysql
     {
-        $this->_db = new \application\lib\DB;
+        if ( self::$_connection instanceof \Krugozor\Database\Mysql )
+        {
+            return self::$_connection;
+        }
+
+        return self::$_connection = \Krugozor\Database\Mysql::create( $_ENV['DB_HOST'], $_ENV['DB_USER'], $_ENV['DB_PASS'] )
+            ->setDatabaseName( $_ENV['DB_NAME'] )
+            ->setCharset( 'utf8mb4' );
     }
+
+    abstract public function validate();
 
 }
