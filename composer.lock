@@ -1,0 +1,75 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "8384bfacf538e2f9a106a8dda79a4613",
+    "packages": [
+        {
+            "name": "krugozor/database",
+            "version": "v1.0.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Vasiliy-Makogon/PHP-MySQL-Class.git",
+                "reference": "3c9baa2aa3d8e4161659c21581c557adcb81582a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Vasiliy-Makogon/PHP-MySQL-Class/zipball/3c9baa2aa3d8e4161659c21581c557adcb81582a",
+                "reference": "3c9baa2aa3d8e4161659c21581c557adcb81582a",
+                "shasum": ""
+            },
+            "require": {
+                "ext-mbstring": "*",
+                "ext-mysqli": "*",
+                "php": ">=8.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Krugozor\\Database\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "authors": [
+                {
+                    "name": "Vasiliy Makogon"
+                }
+            ],
+            "description": "PHP class library for simple, convenient, fast and safe work with MySql database, using PHP mysqli extension and imitation of prepared queries.",
+            "homepage": "https://github.com/Vasiliy-Makogon/Database",
+            "keywords": [
+                "database",
+                "ext-mysqli",
+                "mysql",
+                "mysql class",
+                "mysql database class",
+                "mysql database php class",
+                "mysql db",
+                "mysql db class",
+                "mysqli",
+                "php class database",
+                "php class mysql",
+                "php class mysql database",
+                "placeholder",
+                "placeholders",
+                "prepare statement"
+            ],
+            "support": {
+                "issues": "https://github.com/Vasiliy-Makogon/PHP-MySQL-Class/issues",
+                "source": "https://github.com/Vasiliy-Makogon/PHP-MySQL-Class/tree/v1.0.3"
+            },
+            "time": "2025-08-14T00:04:22+00:00"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": [],
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": [],
+    "platform-dev": [],
+    "plugin-api-version": "2.6.0"
+}

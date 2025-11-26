@@ -1,0 +1,275 @@
+* {
+    box-sizing: border-box
+}
+
+ul, ol {
+    list-style: none;
+    margin: 0;
+    padding: 0
+}
+
+form, p, h1, h2, h3, h4, h5, h6 {
+    margin: 0;
+    padding: 0;
+    font-weight: normal
+}
+
+button {
+    border: none
+}
+
+:focus, :active, a:focus, a:active, input::-ms-clear {
+    outline: none
+}
+
+
+:root {
+    --cs1: #000;
+    --cs2: #fff;
+    --csw1: #343e56;
+}
+
+
+body {
+    font-family: Lato, sans-serif;
+    margin: 0;
+    height: 100vh;
+    overflow-x: hidden;
+    scrollbar-color: rgb(176 179 195 / 60%) transparent;
+    scrollbar-gutter: stable;
+    background-color: #f4f4f8;
+    color: var(--csw1)
+}
+
+.content {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    max-width: 1280px;
+    height: 100%;
+    margin: 0 auto;
+}
+
+.block {
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 20px;
+    background-color: var(--cs2);
+    border: 1px solid rgb(232 232 239 / 100%);
+    border-radius: 12px;
+    box-shadow: rgb(41 41 64 / 7%) 0 1px 2px
+}
+
+.block_header {
+    padding: 20px;
+    border-radius: 0 0 16px 16px;
+    box-shadow: rgb(41 41 64 / 8%) 0 3px 6px -1px
+}
+
+.top {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid rgb(232 232 239 / 100%);
+    padding-bottom: 20px
+}
+
+.top__site-name {
+    text-transform: uppercase;
+    font-size: 22px;
+    font-weight: 900
+}
+
+.top__avatar {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    border-radius: 50%;
+    background-color: rgb(253 126 20 / 80%);
+    text-align: center;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--cs2)
+}
+
+.top__user-name {
+    margin-left: 8px;
+    font-weight: 700
+}
+
+.menu {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 20px
+}
+
+.menu__list {
+    display: flex;
+    gap: 20px
+}
+
+.menu__link {
+    display: flex;
+    align-items: center;
+    min-width: max-content;
+    height: 40px;
+    border-radius: 12px;
+    text-decoration: none;
+    color: var(--csw1);
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 20px
+}
+
+.menu__link_active {
+    background-color: #e8e8ef;
+    font-weight: 600;
+    padding: 0 12px
+}
+
+.footer {
+    display: flex;
+    justify-content: space-between;
+    padding: 25px 0
+}
+
+
+
+.block__header {
+    padding: 20px 20px 10px 20px
+}
+
+.block__title {
+    font-size: 16px;
+    font-weight: 700
+}
+
+.block__body {
+    padding: 10px 20px 20px 20px
+}
+
+
+
+
+.header {
+    padding: 10px 20px;
+    background-color: #ffffff;
+    border-bottom: 1px solid #e8e8ef
+}
+
+.header__top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e8e8ef
+}
+
+.header__menu {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 10px
+}
+
+.menu {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 20px
+}
+
+.menu__list {
+    display: flex;
+    flex-direction: row;
+    gap: 15px
+}
+
+.menu__item {
+    list-style: none
+}
+
+.menu__link {
+    display: inline-block;
+    padding: 10px 15px;
+    text-decoration: none;
+    color: #343e56;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 8px;
+    transition: background-color .2s ease
+}
+
+.menu__link:hover {
+    background-color: #f4f4f8
+}
+
+.menu__link_active {
+    background-color: #e8e8ef;
+    font-weight: bold
+}
+
+.top__user {
+    display: flex;
+    align-items: center;
+    gap: 10px
+}
+
+.top__avatar {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    border-radius: 50%;
+    background-color: rgb(253 126 20 / 80%);
+    text-align: center;
+    font-size: 13px;
+    font-weight: 700;
+    color: #fff
+}
+
+.top__user-name {
+    font-weight: bold
+}
+
+
+
+@media (max-width: 768px) {
+    .header__top {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 10px
+    }
+
+    .header__menu {
+        flex-direction: column;
+        gap: 10px
+    }
+
+    .menu {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px
+    }
+
+    .menu__list {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px
+    }
+
+    .menu__item {
+        width: 100%;
+        text-align: center
+    }
+
+    .menu__link {
+        width: 100%;
+        text-align: center;
+        padding: 10px;
+        font-size: 16px;
+        border-radius: 8px
+    }
+}
