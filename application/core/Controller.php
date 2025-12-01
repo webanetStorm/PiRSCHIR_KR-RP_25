@@ -32,9 +32,9 @@ abstract class Controller
             return [ 'role' => $payload['role'] ?? 'guest', 'id' => (int)( $payload['sub'] ?? 0 ) ];
         }
 
-        if ( isset( $_SESSION['user_id'], $_SESSION['role'] ) )
+        if ( isset( $_SESSION['user_id'], $_SESSION['user_role'] ) )
         {
-            return [ 'role' => $_SESSION['role'], 'id' => (int)$_SESSION['user_id'] ];
+            return [ 'role' => $_SESSION['user_role'], 'id' => (int)$_SESSION['user_id'] ];
         }
 
         return [ 'role' => 'guest', 'id' => 0 ];
@@ -54,7 +54,7 @@ abstract class Controller
 
     protected function getCurrentUserId() : int
     {
-        return $this->route['_user']['id'] ?? throw new \applications\exceptions\UnauthorizedException;
+        return $this->route['_user']['id'] ?? throw new \application\exceptions\UnauthorizedException;
     }
 
     private function decodeJwt( string $token ) : array

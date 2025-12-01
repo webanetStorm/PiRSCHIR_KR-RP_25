@@ -7,10 +7,16 @@
  */
 
 return array (
+    ''              => array ( 'controller' => 'main', 'action' => 'index' ),
+    'auth/login'    => array ( 'controller' => 'auth', 'action' => 'login' ),
+    'auth/register' => array ( 'controller' => 'auth', 'action' => 'register' ),
+    'auth/logout'   => array ( 'controller' => 'auth', 'action' => 'logout' ),
+    'auth/profile'  => array ( 'controller' => 'auth', 'action' => 'profile' ),
 
-    '' => array (
-        'controller' => 'main',
-        'action'     => 'index'
-    )
+    'quests'        => array ( 'controller' => 'quests', 'action' => 'index' ),
+    'quests/create' => array ( 'controller' => 'quests', 'action' => 'create' ),
+    'quests/view'   => array ( 'controller' => 'quests', 'action' => 'view' ),
 
+    'api/quests'        => array ( 'controller' => 'api/quests', 'action' => 'list' ),
+    'api/quests/create' => array ( 'controller' => 'api/quests', 'action' => 'create' ),
 );

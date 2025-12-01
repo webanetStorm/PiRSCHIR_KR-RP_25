@@ -6,15 +6,15 @@
  * Time: 15:55
  */
 
-require_once __DIR__ . '/dev.php';
-require_once __DIR__ . '/conf_global.php';
-require_once __DIR__ . '/vendor/autoload.php';
+require __DIR__ . '/dev.php';
+require __DIR__ . '/conf_global.php';
+require __DIR__ . '/vendor/autoload.php';
 
-spl_autoload_register( function( $class )
+spl_autoload_register( function( string $class )
 {
     if ( file_exists( $path = str_replace( '\\', '/', $class . '.php' ) ) )
     {
-        require $path;
+        require_once $path;
     }
 } );
 

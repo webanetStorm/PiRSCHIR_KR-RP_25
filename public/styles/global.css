@@ -27,6 +27,24 @@ button {
     --cs1: #000;
     --cs2: #fff;
     --csw1: #343e56;
+
+    --primary-color: #4c6ef5;
+    --primary-dark: #3b5bdb;
+    --accent-color: #ff6b6b;
+    --gold-color: #ffd43b;
+
+    --bg-primary: #ffffff;
+    --bg-secondary: #f8f9fa;
+
+    --text-primary: #343a40;
+    --text-secondary: #6c757d;
+
+    --border-color: #dee2e6;
+    --border-light: #e9ecef;
+
+    --error-bg: #f8d7da;
+    --error-border: #f5c6cb;
+    --error-text: #721c24;
 }
 
 

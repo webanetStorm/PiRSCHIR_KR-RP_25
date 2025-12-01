@@ -12,7 +12,7 @@ namespace application\models;
 class Quest extends \application\core\Model
 {
 
-    public const string TABLE = 'quests';
+    protected const string TABLE = 'quests';
 
 
     public const string TYPE_INDIVIDUAL = 'individual';
@@ -75,37 +75,37 @@ class Quest extends \application\core\Model
     {
         if ( empty( $this->title ) || mb_strlen( $this->title ) < 3 )
         {
-            throw new \applications\exceptions\ValidationException( 'Название квеста должно содержать не менее 3 символов' );
+            throw new \application\exceptions\ValidationException( 'Название квеста должно содержать не менее 3 символов' );
         }
 
         if ( empty( $this->description ) )
         {
-            throw new \applications\exceptions\ValidationException( 'Описание квеста не может быть пустым' );
+            throw new \application\exceptions\ValidationException( 'Описание квеста не может быть пустым' );
         }
 
         if ( !in_array( $this->type, [ self::TYPE_INDIVIDUAL, self::TYPE_COLLECTIVE, self::TYPE_TIMED ] ) )
         {
-            throw new \applications\exceptions\ValidationException( 'Неверный тип квеста' );
+            throw new \application\exceptions\ValidationException( 'Неверный тип квеста' );
         }
 
         if ( $this->reward < 1 || $this->reward > 1000 )
         {
-            throw new \applications\exceptions\ValidationException( 'Награда должна быть от 1 до 1000 XP' );
+            throw new \application\exceptions\ValidationException( 'Награда должна быть от 1 до 1000 XP' );
         }
 
         if ( $this->type === self::TYPE_COLLECTIVE && $this->min_participants < 2 )
         {
-            throw new \applications\exceptions\ValidationException( 'Для коллективного квеста нужно минимум 2 участника' );
+            throw new \application\exceptions\ValidationException( 'Для коллективного квеста нужно минимум 2 участника' );
         }
 
         if ( $this->type === self::TYPE_TIMED && !$this->deadline )
         {
-            throw new \applications\exceptions\ValidationException( 'Для квеста с лимитом времени обязательна дата' );
+            throw new \application\exceptions\ValidationException( 'Для квеста с лимитом времени обязательна дата' );
         }
 
         if ( $this->deadline && strtotime( $this->deadline ) <= time() )
         {
-            throw new \applications\exceptions\ValidationException( 'Нельзя установить дедлайн задним числом' );
+            throw new \application\exceptions\ValidationException( 'Нельзя установить дедлайн задним числом' );
         }
     }
 

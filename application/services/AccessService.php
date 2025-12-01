@@ -22,9 +22,9 @@ class AccessService
 
     public function checkAccess( string $controller, string $action ) : void
     {
-        $rules = require __DIR__ . '/../config/rbac.php';
+        $rules = require 'application/config/rbac.php';
 
-        $key = str_replace( '\\', '.', $controller ) . '.' . $action;
+        $key = $controller . '.' . $action;
 
         if ( !isset( $rules[$key] ) )
         {
@@ -33,7 +33,7 @@ class AccessService
 
         if ( !in_array( $this->_currentRole, $rules[$key] ) )
         {
-            throw new \applications\exceptions\UnauthorizedException( "Access denied: $this->_currentRole → $key" );
+            throw new \application\exceptions\UnauthorizedException( "Access denied: $this->_currentRole → $key" );
         }
     }
 
