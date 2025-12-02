@@ -111,13 +111,16 @@ class Quest extends \application\core\Model
 
     public function save() : void
     {
+        $deadlinePlaceholder = $this->deadline === null ? '?n' : '"?s"';
+
         if ( $this->id )
         {
-            self::db()->query( "UPDATE `quests` SET `title` = '?s', `description` = '?s', `type` = '?s', `reward` = ?i, `min_participants` = ?i, `deadline` = '?s', `status` = '?s', `updated_at` = ?i WHERE `id` = ?i", $this->title, $this->description, $this->type, $this->reward, $this->min_participants, $this->deadline, $this->status, time(), $this->id );
+            self::db()->query( "UPDATE `quests` SET `title` = '?s', `description` = '?s', `type` = '?s', `reward` = ?i, `min_participants` = ?i, `deadline` = $deadlinePlaceholder, `status` = '?s', `updated_at` = ?i WHERE `id` = ?i", $this->title, $this->description, $this->type, $this->reward, $this->min_participants, $this->deadline, $this->status, time(), $this->id );
         }
         else
         {
-            self::db()->query( "INSERT INTO `quests` (`user_id`, `title`, `description`, `type`, `reward`, `min_participants`, `deadline`, `status`, `created_at`, `updated_at`) VALUES (?i, '?s', '?s', '?s', ?i, ?i, '?s', '?s', ?i, ?i)", $this->user_id, $this->title, $this->description, $this->type, $this->reward, $this->min_participants, $this->deadline, $this->status, time(), time() );
+            self::db()->query( "INSERT INTO `quests` (`user_id`, `title`, `description`, `type`, `reward`, `min_participants`, `deadline`, `status`, `created_at`, `updated_at`) VALUES (?i, '?s', '?s', '?s', ?i, ?i, $deadlinePlaceholder, '?s', ?i, ?i)", $this->user_id, $this->title, $this->description, $this->type, $this->reward, $this->min_participants, $this->deadline, $this->status, time(), time() );
+
             $this->id = self::db()->getLastInsertId();
         }
     }
@@ -141,6 +144,11 @@ class Quest extends \application\core\Model
         $rows = self::db()->query( "SELECT * FROM `quests` WHERE `status` = '?s'", 'active' )->fetchAssocArray();
 
         return array_map( [ self::class, 'createFromRow' ], $rows );
+    }
+
+    public static function deleteById( int $id ) : void
+    {
+        self::db()->query( "DELETE FROM `quests` WHERE `id` = ?i", $id );
     }
 
     private static function createFromRow( array $row ) : self

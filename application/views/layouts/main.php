@@ -9,6 +9,7 @@
 /**
  * @var string $title
  * @var string $content
+ * @var array $cssFiles
  */
 ?>
 
@@ -18,8 +19,9 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title><?= $title ?></title>
-        <link rel="stylesheet" href="/public/styles/global.css">
-        <link rel="stylesheet" href="/public/styles/auth.css">
+        <?php foreach ( $cssFiles as $cssFile ): ?>
+            <link rel="stylesheet" href="/public/styles/<?= htmlspecialchars( $cssFile ) ?>">
+        <?php endforeach ?>
     </head>
     <body>
         <div class="content">
@@ -29,15 +31,10 @@
                         <div class="header__top top">
                             <h2 class="top__site-name"><?= APP_NAME ?></h2>
                             <div class="top__user">
-                                <?php if ( \application\models\User::isAuthorized() ): ?>
+                                <?php if ( \application\services\UserService::isLoggedIn() ): $user = \application\services\UserService::getCurrentUser() ?>
                                     <div class="user-menu">
-                                        <div class="user-menu__avatar"><?= mb_substr( $_SESSION['user_name'], 0, 1 ) ?></div>
-                                        <span class="user-menu__name"><?= htmlspecialchars( $_SESSION['user_name'] ) ?></span>
-                                        <div class="user-menu__dropdown">
-                                            <a href="/auth/profile" class="user-menu__link">👤 Профиль</a>
-                                            <a href="/quests/create" class="user-menu__link">🎯 Создать квест</a>
-                                            <a href="/auth/logout" class="user-menu__link user-menu__link--logout">🚪 Выйти</a>
-                                        </div>
+                                        <div class="user-menu__avatar"><?= $user->getAvatarLetters() ?></div>
+                                        <a href="/auth/profile" class="user-menu__name"><?= htmlspecialchars( $user->name ) ?></a>
                                     </div>
                                 <?php else: ?>
                                     <div class="auth-links">
@@ -49,10 +46,28 @@
                         </div>
                         <div class="header__menu menu">
                             <ul class="menu__list">
-                                <li class="menu__item"><a class="menu__link" href="/">Главная</a></li>
+                                <li class="menu__item">
+                                    <a class="menu__link <?= ( $this->_route['controller'] ?? '' ) === 'main' ? 'menu__link--active' : '' ?>"href="/">🏠 Главная</a>
+                                </li>
+                                <li class="menu__item">
+                                    <a class="menu__link <?= ( $this->_route['controller'] ?? '' ) === 'quests' && ( $this->_route['action'] ?? '' ) === 'index' ? 'menu__link--active' : '' ?>" href="/quests">📋 Все квесты</a>
+                                </li>
+                                <?php if ( \application\services\UserService::isLoggedIn() ): ?>
+                                    <li class="menu__item">
+                                        <a class="menu__link <?= ( $this->_route['controller'] ?? '' ) === 'quests' && ( $this->_route['action'] ?? '' ) === 'create' ? 'menu__link--active' : '' ?>" href="/quests/create">🎯 Создать квест</a>
+                                    </li>
+                                    <li class="menu__item">
+                                        <a class="menu__link <?= ( $this->_route['controller'] ?? '' ) === 'quests' && ( $this->_route['action'] ?? '' ) === 'my' ? 'menu__link--active' : '' ?>" href="/quests/my">📁 Мои квесты</a>
+                                    </li>
+                                <?php endif ?>
                             </ul>
                             <ul class="menu__list">
-                                <li class="menu__item"><a class="menu__link" href="#">Модерация</a></li>
+                                <li class="menu__item">
+                                    <a class="menu__link <?= ( $this->_route['controller'] ?? '' ) === 'admin' ? 'menu__link--active' : '' ?>" href="/admin">⚙️ Модерация</a>
+                                </li>
+                                <li class="menu__item">
+                                    <a class="menu__link" href="/admin">🚪 Выйти</a>
+                                </li>
                             </ul>
                         </div>
                     </div>
@@ -66,5 +81,8 @@
                 <span class="footer__vk">@webanet</span>
             </footer>
         </div>
+        <?php if ( $this->_route['controller'] === 'quests' ): ?>
+            <script src="/public/scripts/quests.js"></script>
+        <?php endif; ?>
     </body>
 </html>

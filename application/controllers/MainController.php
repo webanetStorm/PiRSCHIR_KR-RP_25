@@ -14,7 +14,7 @@ class MainController extends \application\core\Controller
 
     public function indexAction() : void
     {
-        $this->view->render( 'Главная' );
+        $this->view->render( 'Главная', [ 'isLoggedIn'  => \application\services\UserService::isLoggedIn() ] );
     }
 
 }

@@ -34,11 +34,7 @@ class AuthController extends \application\core\Controller
                 {
                     if ( $user = \application\models\User::login( $email, $password ) )
                     {
-                        $_SESSION['user_id'] = $user->id;
-                        $_SESSION['user_email'] = $user->email;
-                        $_SESSION['user_name'] = $user->name;
-                        $_SESSION['user_role'] = $user->role;
-
+                        \application\services\UserService::login( $user );
                         $this->view->redirect( '/' );
                     }
                     else
@@ -85,10 +81,7 @@ class AuthController extends \application\core\Controller
                         'role'     => 'user'
                     ] );
 
-                    $_SESSION['user_id'] = $user->id;
-                    $_SESSION['user_email'] = $user->email;
-                    $_SESSION['user_name'] = $user->name;
-                    $_SESSION['user_role'] = $user->role;
+                    \application\services\UserService::login( $user );
 
                     $this->view->redirect( '/' );
                 }
@@ -120,11 +113,9 @@ class AuthController extends \application\core\Controller
     {
         $this->checkAccess();
 
-        $user = \application\models\User::findById( $this->getCurrentUserId() );
+        $user = \application\services\UserService::getCurrentUser();
 
         $this->view->render( 'Профиль пользователя', compact( 'user' ) );
     }
-
-
 
 }

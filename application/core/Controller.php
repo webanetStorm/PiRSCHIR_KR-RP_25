@@ -25,16 +25,14 @@ abstract class Controller
 
     protected function getUserContext() : array
     {
-        if ( preg_match( '/Bearer\s+(\S+)/', $_SERVER['HTTP_AUTHORIZATION'] ?? '', $m ) )
+        if ( $user = \application\services\UserService::getCurrentUser() )
         {
-            $payload = $this->decodeJwt( $m[1] );
-
-            return [ 'role' => $payload['role'] ?? 'guest', 'id' => (int)( $payload['sub'] ?? 0 ) ];
-        }
-
-        if ( isset( $_SESSION['user_id'], $_SESSION['user_role'] ) )
-        {
-            return [ 'role' => $_SESSION['user_role'], 'id' => (int)$_SESSION['user_id'] ];
+            return [
+                'role'  => $user->role,
+                'id'    => $user->id,
+                'email' => $user->email,
+                'name'  => $user->name
+            ];
         }
 
         return [ 'role' => 'guest', 'id' => 0 ];
@@ -43,32 +41,29 @@ abstract class Controller
     protected function checkAccess( ?string $action = null ) : void
     {
         $ctx = $this->getUserContext();
-        $ctrl = $this->route['controller'] ?? 'main';
-        $act = $action ?? ( $this->route['action'] ?? 'index' );
 
-        $access = new \application\services\AccessService( $ctx['role'] );
-        $access->checkAccess( $ctrl, $act );
+        new \application\services\AccessService( $ctx['role'] )
+            ->checkAccess( $this->route['controller'], $action ?? ( $this->route['action'] ?? 'index' ) );
 
         $this->route['_user'] = $ctx;
     }
 
-    protected function getCurrentUserId() : int
+    protected function requireAuth() : void
     {
-        return $this->route['_user']['id'] ?? throw new \application\exceptions\UnauthorizedException;
+        if ( !\application\services\UserService::isLoggedIn() )
+        {
+            $this->view->redirect( '/auth/login' );
+        }
     }
 
-    private function decodeJwt( string $token ) : array
+    protected function requireRole( string $role ) : void
     {
-        [ $header64, $payload64 ] = explode( '.', $token, 3 ) + [ null, null ];
+        $this->requireAuth();
 
-        if ( !$payload64 )
+        if ( \application\services\UserService::getCurrentUser()->role !== $role )
         {
-            return [];
+            throw new \application\exceptions\UnauthorizedException( 'Недостаточно прав' );
         }
-
-        $payload = json_decode( base64_decode( strtr( $payload64, '-_', '+/' ) ), true );
-
-        return is_array( $payload ) ? $payload : [];
     }
 
 }

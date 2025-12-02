@@ -100,11 +100,6 @@ class User extends \application\core\Model
         return $user;
     }
 
-    public static function isAuthorized() : bool
-    {
-        return isset( $_SESSION['user_id'] ) && $_SESSION['user_id'];
-    }
-
     private static function createByRow( array $row ) : self
     {
         $user = new self;

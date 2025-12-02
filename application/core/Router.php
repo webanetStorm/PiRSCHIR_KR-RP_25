@@ -40,9 +40,13 @@ class Router
 
         foreach ( $this->_routes as $route => $params )
         {
-            if ( preg_match( $route, $url ) )
+            if ( preg_match( $route, $url, $matches ) )
             {
-                $this->_params = $params;
+                $routeParams = array_filter( $matches, 'is_string', ARRAY_FILTER_USE_KEY );
+
+                unset( $routeParams[0] );
+
+                $this->_params = array_merge( $params, $routeParams );
 
                 return true;
             }

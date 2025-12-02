@@ -37,6 +37,14 @@ class View
             require $path;
             $content = ob_get_clean();
 
+            $controllerCss = "{$this->_route['controller']}.css";
+            $cssFiles = [ 'global.css' ];
+
+            if ( file_exists( __DIR__ . '/../../public/styles/' . $controllerCss ) )
+            {
+                $cssFiles[] = $controllerCss;
+            }
+
             require 'application/views/layouts/' . $this->_layout . '.php';
         }
     }

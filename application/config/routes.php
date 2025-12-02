@@ -13,9 +13,13 @@ return array (
     'auth/logout'   => array ( 'controller' => 'auth', 'action' => 'logout' ),
     'auth/profile'  => array ( 'controller' => 'auth', 'action' => 'profile' ),
 
-    'quests'        => array ( 'controller' => 'quests', 'action' => 'index' ),
-    'quests/create' => array ( 'controller' => 'quests', 'action' => 'create' ),
-    'quests/view'   => array ( 'controller' => 'quests', 'action' => 'view' ),
+    'quests'                  => array ( 'controller' => 'quests', 'action' => 'index' ),
+    'quests/create'           => array ( 'controller' => 'quests', 'action' => 'create' ),
+    'quests/my'               => array ( 'controller' => 'quests', 'action' => 'my' ),
+    'quests/view/{id:\d+}'    => array ( 'controller' => 'quests', 'action' => 'view' ),
+    'quests/publish/{id:\d+}' => array ( 'controller' => 'quests', 'action' => 'publish' ),
+    'quests/update/{id:\d+}'  => array ( 'controller' => 'quests', 'action' => 'update' ),
+    'quests/delete/{id:\d+}'  => array ( 'controller' => 'quests', 'action' => 'delete' ),
 
     'api/quests'        => array ( 'controller' => 'api/quests', 'action' => 'list' ),
     'api/quests/create' => array ( 'controller' => 'api/quests', 'action' => 'create' ),

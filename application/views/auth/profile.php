@@ -36,10 +36,6 @@
                     </div>
                 </div>
             </div>
-            <div class="profile__actions">
-                <a href="/quests/create" class="button button--primary">Создать квест</a>
-                <a href="/auth/logout" class="button button--secondary">Выйти</a>
-            </div>
         </div>
     </div>
 </div>
