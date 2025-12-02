@@ -21,6 +21,16 @@ return array (
     'quests/update/{id:\d+}'  => array ( 'controller' => 'quests', 'action' => 'update' ),
     'quests/delete/{id:\d+}'  => array ( 'controller' => 'quests', 'action' => 'delete' ),
 
-    'api/quests'        => array ( 'controller' => 'api/quests', 'action' => 'list' ),
-    'api/quests/create' => array ( 'controller' => 'api/quests', 'action' => 'create' ),
+    'api/auth/login'    => array ( 'controller' => 'api/auth', 'action' => 'login' ),
+    'api/auth/register' => array ( 'controller' => 'api/auth', 'action' => 'register' ),
+    'api/auth/logout'   => array ( 'controller' => 'api/auth', 'action' => 'logout' ),
+    'api/auth/profile'  => array ( 'controller' => 'api/auth', 'action' => 'profile' ),
+
+    'api/quests'                  => array ( 'controller' => 'api/quests', 'action' => 'list' ),
+    'api/quests/{id:\d+}'         => array ( 'controller' => 'api/quests', 'action' => 'view' ),
+    'api/quests/my'               => array ( 'controller' => 'api/quests', 'action' => 'my' ),
+    'api/quests/create'           => array ( 'controller' => 'api/quests', 'action' => 'create' ),
+    'api/quests/{id:\d+}/update'  => array ( 'controller' => 'api/quests', 'action' => 'update' ),
+    'api/quests/{id:\d+}/delete'  => array ( 'controller' => 'api/quests', 'action' => 'delete' ),
+    'api/quests/{id:\d+}/publish' => array ( 'controller' => 'api/quests', 'action' => 'publish' ),
 );

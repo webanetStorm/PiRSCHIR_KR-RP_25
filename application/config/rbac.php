@@ -21,9 +21,16 @@ return array (
     'quests.delete'  => array ( 'user', 'admin' ),
     'quests.join'    => array ( 'user', 'admin' ),
 
-    'admin.users.list' => array ( 'admin' ),
-    'admin.users.edit' => array ( 'admin' ),
+    'api/auth.login'    => array ( 'guest' ),
+    'api/auth.register' => array ( 'guest' ),
+    'api/auth.logout'   => array ( 'user', 'admin' ),
+    'api/auth.profile'  => array ( 'user', 'admin' ),
 
-    'api.auth.login'    => array ( 'guest' ),
-    'api.quests.create' => array ( 'user', 'admin' ),
+    'api/quests.list'    => array ( 'guest', 'user', 'admin' ),
+    'api/quests.view'    => array ( 'guest', 'user', 'admin' ),
+    'api/quests.my'      => array ( 'user', 'admin' ),
+    'api/quests.create'  => array ( 'user', 'admin' ),
+    'api/quests.update'  => array ( 'user', 'admin' ),
+    'api/quests.delete'  => array ( 'user', 'admin' ),
+    'api/quests.publish' => array ( 'user', 'admin' ),
 );

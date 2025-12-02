@@ -29,24 +29,23 @@ class Router
 
     public function add( string $route, array $params ) : void
     {
-        $route = '#^' . preg_replace( '/{([a-z]+):([^}]+)}/', '(?P<\1>\2)', $route ) . '$#';
-
-        $this->_routes[$route] = $params;
+        $this->_routes['#^' . preg_replace( '/\{([a-z]+):([^}]+)}/', '(?P<\1>\2)', $route ) . '$#'] = $params;
     }
 
     public function match() : bool
     {
         $url = trim( $_SERVER['REQUEST_URI'], '/' );
 
+        if ( ( $pos = strpos( $url, '?' ) ) !== false )
+        {
+            $url = substr( $url, 0, $pos );
+        }
+
         foreach ( $this->_routes as $route => $params )
         {
             if ( preg_match( $route, $url, $matches ) )
             {
-                $routeParams = array_filter( $matches, 'is_string', ARRAY_FILTER_USE_KEY );
-
-                unset( $routeParams[0] );
-
-                $this->_params = array_merge( $params, $routeParams );
+                $this->_params = array_merge( $params, array_filter( $matches, fn( $key ) => is_string( $key ), ARRAY_FILTER_USE_KEY ) );
 
                 return true;
             }
@@ -59,12 +58,14 @@ class Router
     {
         if ( $this->match() )
         {
-            $controller = 'application\controllers\\' . ucfirst( $this->_params['controller'] ) . 'Controller';
+            $controller = str_starts_with( $this->_params['controller'], 'api/' )
+                ? 'application\controllers\api\\' . ucfirst( str_replace( 'api/', '', $this->_params['controller'] ) ) . 'Controller'
+                : 'application\controllers\\' . ucfirst( $this->_params['controller'] ) . 'Controller';
+
+            $action = $this->_params['action'] . 'Action';
 
             if ( class_exists( $controller ) )
             {
-                $action = $this->_params['action'] . 'Action';
-
                 if ( method_exists( $controller, $action ) )
                 {
                     new $controller( $this->_params )->$action();
@@ -73,13 +74,11 @@ class Router
                 {
                     View::errorCode( 404 );
                 }
-
             }
             else
             {
                 View::errorCode( 404 );
             }
-
         }
         else
         {

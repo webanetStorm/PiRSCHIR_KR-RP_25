@@ -32,18 +32,7 @@ class QuestsController extends \application\core\Controller
         {
             try
             {
-                $quest = \application\models\Quest::createByArray( [
-                    'user_id'          => \application\services\UserService::getCurrentUser()->id,
-                    'title'            => $_POST['title'] ?? '',
-                    'description'      => $_POST['description'] ?? '',
-                    'type'             => $_POST['type'] ?? \application\models\Quest::TYPE_INDIVIDUAL,
-                    'reward'           => $_POST['reward'] ?? 20,
-                    'min_participants' => $_POST['min_participants'] ?? 0,
-                    'deadline'         => $_POST['deadline'] ?? null,
-                    'status'           => \application\models\Quest::STATUS_DRAFT
-                ] );
-
-                $quest->save();
+                \application\services\QuestService::createQuest( $_POST, \application\services\UserService::getCurrentUser()->id );
                 $success = true;
             }
             catch ( \application\exceptions\ValidationException $e )
@@ -63,14 +52,48 @@ class QuestsController extends \application\core\Controller
         ] );
     }
 
-    public function viewAction() : void
+    public function updateAction() : void
     {
-        if ( !( $id = (int)( $this->route['id'] ?? 0 ) ) )
+        $this->checkAccess();
+
+        $quest = \application\models\Quest::findById( (int)( $this->route['id'] ?? 0 ) );
+
+        if ( $quest->user_id !== \application\services\UserService::getCurrentUser()->id )
         {
-            $this->view->errorCode( 404 );
+            $this->view->errorCode( 403 );
         }
 
-        if ( !( $quest = \application\models\Quest::findById( $id ) ) )
+        $error = '';
+        $success = false;
+
+        if ( $_POST )
+        {
+            try
+            {
+                \application\services\QuestService::updateQuest( $quest, $_POST );
+                $success = true;
+            }
+            catch ( \application\exceptions\ValidationException $e )
+            {
+                $error = $e->getMessage();
+            }
+        }
+
+        $this->view->render( 'Редактирование квеста', [
+            'quest'      => $quest,
+            'error'      => $error,
+            'success'    => $success,
+            'questTypes' => [
+                \application\models\Quest::TYPE_INDIVIDUAL => 'Индивидуальный',
+                \application\models\Quest::TYPE_COLLECTIVE => 'Коллективный',
+                \application\models\Quest::TYPE_TIMED      => 'Ограниченный по времени'
+            ]
+        ] );
+    }
+
+    public function viewAction() : void
+    {
+        if ( !( $quest = \application\models\Quest::findById( (int)( $this->route['id'] ?? 0 ) ) ) )
         {
             $this->view->errorCode( 404 );
         }
@@ -95,73 +118,22 @@ class QuestsController extends \application\core\Controller
     {
         $this->checkAccess();
 
-        if ( !( $id = (int)( $this->route['id'] ?? 0 ) ) )
-        {
-            $this->view->errorCode( 400 );
-        }
+        $quest = \application\models\Quest::findById( (int)( $this->route['id'] ?? 0 ) );
 
-        if ( !( $quest = \application\models\Quest::findById( $id ) ) || $quest->user_id !== \application\services\UserService::getCurrentUser()->id )
+        if ( !$quest || $quest->user_id !== \application\services\UserService::getCurrentUser()->id )
         {
             $this->view->errorCode( 403 );
         }
 
-        if ( $quest->status !== \application\models\Quest::STATUS_DRAFT )
+        try
+        {
+            \application\services\QuestService::publishQuest( $quest );
+            $this->view->redirect( '/quests' );
+        }
+        catch ( \application\exceptions\ValidationException $e )
         {
             $this->view->errorCode( 400 );
         }
-
-        $quest->status = \application\models\Quest::STATUS_ACTIVE;
-        $quest->updated_at = time();
-        $quest->save();
-
-        $this->view->redirect( '/quests' );
-    }
-
-    public function updateAction() : void
-    {
-        $this->checkAccess();
-
-        if ( !( $quest = \application\models\Quest::findById( (int)( $this->route['id'] ?? 0 ) ) ) || $quest->user_id !== \application\services\UserService::getCurrentUser()->id )
-        {
-            $this->view->errorCode( 403 );
-        }
-
-        $error = '';
-        $success = false;
-
-        if ( $_POST )
-        {
-            try
-            {
-                $quest->title = $_POST['title'] ?? $quest->title;
-                $quest->description = $_POST['description'] ?? $quest->description;
-                $quest->type = $_POST['type'] ?? $quest->type;
-                $quest->reward = (int)( $_POST['reward'] ?? $quest->reward );
-                $quest->min_participants = (int)( $_POST['min_participants'] ?? $quest->min_participants );
-                $quest->deadline = !empty( $_POST['deadline'] ) ? $_POST['deadline'] : null;
-                $quest->updated_at = time();
-
-                $quest->validate();
-                $quest->save();
-                $success = true;
-
-            }
-            catch ( \application\exceptions\ValidationException $e )
-            {
-                $error = $e->getMessage();
-            }
-        }
-
-        $this->view->render( 'Редактирование квеста', [
-            'quest'      => $quest,
-            'error'      => $error,
-            'success'    => $success,
-            'questTypes' => [
-                \application\models\Quest::TYPE_INDIVIDUAL => 'Индивидуальный',
-                \application\models\Quest::TYPE_COLLECTIVE => 'Коллективный',
-                \application\models\Quest::TYPE_TIMED      => 'Ограниченный по времени'
-            ]
-        ] );
     }
 
     #[NoReturn]
@@ -169,18 +141,14 @@ class QuestsController extends \application\core\Controller
     {
         $this->checkAccess();
 
-        if ( !( $id = (int)( $this->route['id'] ?? 0 ) ) )
-        {
-            $this->view->errorCode( 400 );
-        }
+        $quest = \application\models\Quest::findById( (int)( $this->route['id'] ?? 0 ) );
 
-        if ( !( $quest = \application\models\Quest::findById( $id ) ) || $quest->user_id !== \application\services\UserService::getCurrentUser()->id )
+        if ( !$quest || $quest->user_id !== \application\services\UserService::getCurrentUser()->id )
         {
             $this->view->errorCode( 403 );
         }
 
-        \application\models\Quest::deleteById( $id );
-
+        \application\services\QuestService::deleteQuest( $quest );
         $this->view->redirect( '/quests/my' );
     }
 
