@@ -28,12 +28,12 @@ class AccessService
 
         if ( !isset( $rules[$key] ) )
         {
-            throw new \LogicException( "RBAC rule not defined for $key" );
+            throw new \LogicException( "Правило RBAC не определено $key" );
         }
 
         if ( !in_array( $this->_currentRole, $rules[$key] ) )
         {
-            throw new \application\exceptions\UnauthorizedException( "Access denied: $this->_currentRole → $key" );
+            throw new \application\exceptions\UnauthorizedException( "У роли $this->_currentRole нет доступа к $key" );
         }
     }
 

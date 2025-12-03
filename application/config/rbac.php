@@ -26,7 +26,7 @@ return array (
     'api/auth.logout'   => array ( 'user', 'admin' ),
     'api/auth.profile'  => array ( 'user', 'admin' ),
 
-    'api/quests.list'    => array ( 'guest', 'user', 'admin' ),
+    'api/quests.index'   => array ( 'guest', 'user', 'admin' ),
     'api/quests.view'    => array ( 'guest', 'user', 'admin' ),
     'api/quests.my'      => array ( 'user', 'admin' ),
     'api/quests.create'  => array ( 'user', 'admin' ),

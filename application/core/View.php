@@ -49,13 +49,15 @@ class View
         }
     }
 
-    #[NoReturn] public function redirect( string $url ) : void
+    #[NoReturn]
+    public function redirect( string $url ) : void
     {
         header( 'location: ' . $url );
         exit;
     }
 
-    #[NoReturn] public static function errorCode( int $code ) : void
+    #[NoReturn]
+    public static function errorCode( int $code ) : void
     {
         http_response_code( $code );
 

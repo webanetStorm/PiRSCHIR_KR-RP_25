@@ -12,16 +12,13 @@ namespace application\controllers\api;
 class QuestsController extends ApiController
 {
 
-    public function listAction() : void
+    public function indexAction() : void
     {
         try
         {
             $this->checkAccess();
 
-            $quests = \application\models\Quest::getActive();
-            $data = array_map( fn( $quest ) => $quest->toArray(), $quests );
-
-            $this->success( $data );
+            $this->success( array_map( fn( $quest ) => $quest->toArray(), \application\models\Quest::getActive() ) );
         }
         catch ( \Exception $e )
         {
@@ -38,25 +35,18 @@ class QuestsController extends ApiController
             if ( !( $id = (int)( $this->route['id'] ?? 0 ) ) )
             {
                 $this->error( 'ID квеста не указан' );
-
-                return;
             }
 
             if ( !( $quest = \application\models\Quest::findById( $id ) ) )
             {
                 $this->notFound();
-
-                return;
             }
 
-            $currentUser = \application\services\UserService::getCurrentUser();
-            $isOwner = $currentUser && $quest->user_id === $currentUser->id;
+            $isOwner = $this->user && $quest->user_id === $this->user->id;
 
             if ( $quest->status !== \application\models\Quest::STATUS_ACTIVE && !$isOwner )
             {
                 $this->forbidden();
-
-                return;
             }
 
             $questData = $quest->toArray();
@@ -75,11 +65,9 @@ class QuestsController extends ApiController
     {
         try
         {
-            $this->requireAuth();
+            $this->requireApiAuth();
 
-            $quests = \application\models\Quest::findByUserId( \application\services\UserService::getCurrentUser()->id );
-
-            $this->success( array_map( fn( $quest ) => $quest->toArray(), $quests ) );
+            $this->success( array_map( fn( $quest ) => $quest->toArray(), \application\models\Quest::findByUserId( $this->user->id ) ) );
 
         }
         catch ( \application\exceptions\UnauthorizedException $e )
@@ -96,7 +84,7 @@ class QuestsController extends ApiController
     {
         try
         {
-            $this->requireAuth();
+            $this->requireApiAuth();
             $this->checkAccess( 'create' );
 
             $data = $this->getJsonInput();
@@ -106,8 +94,7 @@ class QuestsController extends ApiController
                 $this->validationError( $errors );
             }
 
-            $user = \application\services\UserService::getCurrentUser();
-            $quest = \application\services\QuestService::createQuest( $data, $user );
+            $quest = \application\services\QuestService::createQuest( $data, $this->user );
 
             $this->success( $quest->toArray(), 'Квест успешно создан' );
         }
@@ -129,27 +116,23 @@ class QuestsController extends ApiController
     {
         try
         {
-            $this->requireAuth();
+            $this->requireApiAuth();
 
-            $questId = (int)( $this->route['id'] ?? 0 );
-            $quest = \application\models\Quest::findById( $questId );
-
-            if ( !$quest )
+            if ( !( $quest = \application\models\Quest::findById( (int)( $this->route['id'] ?? 0 ) ) ) )
             {
                 $this->notFound();
             }
 
-            if ( $quest->user_id !== \application\services\UserService::getCurrentUser()->id )
+            if ( $quest->user_id !== $this->user->id )
             {
                 $this->forbidden();
             }
 
-            $data = $this->getJsonInput();
-            $quest = \application\services\QuestService::updateQuest( $quest, $data );
+            $quest = \application\services\QuestService::updateQuest( $quest, $this->getJsonInput() );
 
             $this->success( $quest->toArray(), 'Квест успешно обновлен' );
         }
-        catch ( \application\exceptions\ValidationException $e )
+        catch ( \Exception $e )
         {
             $this->error( $e->getMessage(), [], 422 );
         }
@@ -159,7 +142,7 @@ class QuestsController extends ApiController
     {
         try
         {
-            $this->requireAuth();
+            $this->requireApiAuth();
 
             $questId = (int)( $this->route['id'] ?? 0 );
             $quest = \application\models\Quest::findById( $questId );
@@ -169,7 +152,7 @@ class QuestsController extends ApiController
                 $this->notFound();
             }
 
-            if ( $quest->user_id !== \application\services\UserService::getCurrentUser()->id )
+            if ( $quest->user_id !== $this->user->id )
             {
                 $this->forbidden();
             }
@@ -188,17 +171,14 @@ class QuestsController extends ApiController
     {
         try
         {
-            $this->requireAuth();
+            $this->requireApiAuth();
 
-            $questId = (int)( $this->route['id'] ?? 0 );
-            $quest = \application\models\Quest::findById( $questId );
-
-            if ( !$quest )
+            if ( !( $quest = \application\models\Quest::findById( (int)( $this->route['id'] ?? 0 ) ) ) )
             {
                 $this->notFound();
             }
 
-            if ( $quest->user_id !== \application\services\UserService::getCurrentUser()->id )
+            if ( $quest->user_id !== $this->user->id )
             {
                 $this->forbidden();
             }
@@ -207,7 +187,7 @@ class QuestsController extends ApiController
 
             $this->success( $quest->toArray(), 'Квест успешно опубликован' );
         }
-        catch ( \application\exceptions\ValidationException $e )
+        catch ( \Exception $e )
         {
             $this->error( $e->getMessage(), [], 422 );
         }

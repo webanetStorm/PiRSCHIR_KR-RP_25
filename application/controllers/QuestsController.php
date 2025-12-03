@@ -99,7 +99,7 @@ class QuestsController extends \application\core\Controller
         }
 
         $user = \application\services\UserService::getCurrentUser();
-        $isOwner = $quest->user_id === $user->id;
+        $isOwner = $quest->user_id === $user?->id;
 
         $this->view->render( 'Просмотр квеста', compact( 'quest', 'user', 'isOwner' ) );
     }

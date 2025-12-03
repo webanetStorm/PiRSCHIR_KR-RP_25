@@ -26,7 +26,7 @@ return array (
     'api/auth/logout'   => array ( 'controller' => 'api/auth', 'action' => 'logout' ),
     'api/auth/profile'  => array ( 'controller' => 'api/auth', 'action' => 'profile' ),
 
-    'api/quests'                  => array ( 'controller' => 'api/quests', 'action' => 'list' ),
+    'api/quests'                  => array ( 'controller' => 'api/quests', 'action' => 'index' ),
     'api/quests/{id:\d+}'         => array ( 'controller' => 'api/quests', 'action' => 'view' ),
     'api/quests/my'               => array ( 'controller' => 'api/quests', 'action' => 'my' ),
     'api/quests/create'           => array ( 'controller' => 'api/quests', 'action' => 'create' ),

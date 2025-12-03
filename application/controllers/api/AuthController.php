@@ -9,6 +9,9 @@
 namespace application\controllers\api;
 
 
+use JetBrains\PhpStorm\NoReturn;
+
+
 class AuthController extends ApiController
 {
 
@@ -23,19 +26,13 @@ class AuthController extends ApiController
 
             if ( empty( $email ) || empty( $password ) )
             {
-                $this->error( 'Заполните все поля', [], 400 );
-
-                return;
+                $this->error( 'Заполните все поля' );
             }
 
             if ( !( $user = \application\models\User::login( $email, $password ) ) )
             {
                 $this->error( 'Неверный email или пароль', [], 401 );
-
-                return;
             }
-
-            \application\services\UserService::login( $user );
 
             $this->success( [
                 'token' => $this->generateToken( $user ),
@@ -61,16 +58,12 @@ class AuthController extends ApiController
 
             if ( empty( $email ) || empty( $password ) || empty( $name ) )
             {
-                $this->error( 'Заполните все поля', [], 400 );
-
-                return;
+                $this->error( 'Заполните все поля' );
             }
 
             if ( mb_strlen( $password ) < 4 )
             {
-                $this->error( 'Пароль должен содержать не менее 4 символов', [], 400 );
-
-                return;
+                $this->error( 'Пароль должен содержать не менее 4 символов' );
             }
 
             $user = \application\models\User::register( [
@@ -79,8 +72,6 @@ class AuthController extends ApiController
                 'name'     => $name,
                 'role'     => 'user'
             ] );
-
-            \application\services\UserService::login( $user );
 
             $this->success( [
                 'token' => $this->generateToken( $user ),
@@ -98,11 +89,11 @@ class AuthController extends ApiController
         }
     }
 
+    #[NoReturn]
     public function logoutAction() : void
     {
         try
         {
-            \application\services\UserService::logout();
             $this->success( [], 'Успешный выход из системы' );
         }
         catch ( \Exception $e )
@@ -115,16 +106,14 @@ class AuthController extends ApiController
     {
         try
         {
-            $this->requireAuth();
+            $this->requireApiAuth();
 
-            if ( !( $user = \application\services\UserService::getCurrentUser() ) )
+            if ( !$this->user )
             {
                 $this->error( 'Пользователь не найден', [], 404 );
-
-                return;
             }
 
-            $this->success( $user->toArray() );
+            $this->success( $this->user->toArray() );
         }
         catch ( \application\exceptions\UnauthorizedException $e )
         {
@@ -157,7 +146,7 @@ class AuthController extends ApiController
 
             return $decoded;
         }
-        catch ( \Exception $e )
+        catch ( \Exception )
         {
             return null;
         }

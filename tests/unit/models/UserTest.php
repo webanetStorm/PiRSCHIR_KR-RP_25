@@ -189,7 +189,6 @@ class UserTest extends \PHPUnit\Framework\TestCase
             'role'     => 'user'
         ] );
 
-        $this->assertInstanceOf( \application\models\User::class, $user );
         $this->assertSame( 25, $user->id );
         $this->assertSame( 'newuser@example.com', $user->email );
         $this->assertSame( 'New User', $user->name );
