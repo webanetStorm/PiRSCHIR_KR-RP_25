@@ -22,9 +22,9 @@ abstract class Model
             return self::$_connection;
         }
 
-        return self::$_connection = \Krugozor\Database\Mysql::create( $_ENV['DB_HOST'], $_ENV['DB_USER'], $_ENV['DB_PASS'] )
-            ->setDatabaseName( $_ENV['DB_NAME'] )
-            ->setCharset( 'utf8mb4' );
+        return self::$_connection = \Krugozor\Database\Mysql::create( DB_HOST, DB_USER, DB_PASS )
+            ->setDatabaseName( DB_NAME )
+            ->setCharset( DB_CHARSET );
     }
 
     abstract public function validate();

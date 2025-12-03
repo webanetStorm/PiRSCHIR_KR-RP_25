@@ -66,7 +66,7 @@
                                     <a class="menu__link <?= ( $this->_route['controller'] ?? '' ) === 'admin' ? 'menu__link--active' : '' ?>" href="/admin">⚙️ Модерация</a>
                                 </li>
                                 <li class="menu__item">
-                                    <a class="menu__link" href="/admin">🚪 Выйти</a>
+                                    <a class="menu__link" href="/auth/logout">🚪 Выйти</a>
                                 </li>
                             </ul>
                         </div>
