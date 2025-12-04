@@ -10,6 +10,7 @@ return array (
     'main.index'    => array ( 'guest', 'user', 'admin' ),
     'auth.login'    => array ( 'guest' ),
     'auth.register' => array ( 'guest' ),
+    'auth.logout'   => array ( 'user', 'admin' ),
     'auth.profile'  => array ( 'user', 'admin' ),
 
     'quests.index'   => array ( 'guest', 'user', 'admin' ),
@@ -21,9 +22,8 @@ return array (
     'quests.delete'  => array ( 'user', 'admin' ),
     'quests.join'    => array ( 'user', 'admin' ),
 
-    'api/auth.login'    => array ( 'guest' ),
-    'api/auth.register' => array ( 'guest' ),
-    'api/auth.logout'   => array ( 'user', 'admin' ),
+    'api/auth.login'    => array ( 'guest', 'user', 'admin' ),
+    'api/auth.register' => array ( 'guest', 'user', 'admin' ),
     'api/auth.profile'  => array ( 'user', 'admin' ),
 
     'api/quests.index'   => array ( 'guest', 'user', 'admin' ),

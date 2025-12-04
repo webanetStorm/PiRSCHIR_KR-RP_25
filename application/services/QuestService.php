@@ -12,101 +12,96 @@ namespace application\services;
 class QuestService
 {
 
-    public static function createQuest( array $data, \application\models\User $user ) : \application\models\Quest
-    {
-        $quest = \application\models\Quest::createByArray( [
-            'user_id'          => $user->id,
-            'title'            => $data['title'],
-            'description'      => $data['description'],
-            'type'             => $data['type'] ?? \application\models\Quest::TYPE_INDIVIDUAL,
-            'reward'           => $data['reward'] ?? 20,
-            'min_participants' => $data['min_participants'] ?? 0,
-            'deadline'         => $data['deadline'] ?? null,
-            'status'           => \application\models\Quest::STATUS_DRAFT,
-        ] );
+    private \application\repositories\QuestRepository $_repository;
 
-        $quest->save();
+
+    public function __construct( \application\repositories\QuestRepository $repository )
+    {
+        $this->_repository = $repository;
+    }
+
+    /**
+     * @throws \application\exceptions\ValidationException
+     */
+    public function create( array $data, \application\models\User $user ) : \application\models\Quest
+    {
+        $quest = new \application\models\Quest();
+        $time = time();
+
+        $quest->fill( array_merge( $data, [
+            'user_id'    => $user->id,
+            'created_at' => $time,
+            'updated_at' => $time
+        ] ) );
+
+        $quest->validate();
+        $this->_repository->save( $quest );
 
         return $quest;
     }
 
-    public static function updateQuest( \application\models\Quest $quest, array $data ) : \application\models\Quest
+    /**
+     * @throws \application\exceptions\ValidationException
+     * @throws \application\exceptions\ForbiddenException
+     * @throws \Krugozor\Database\MySqlException
+     */
+    public function update( \application\models\Quest $quest, array $data ) : \application\models\Quest
     {
-        $quest->title = $data['title'] ?? $quest->title;
-        $quest->description = $data['description'] ?? $quest->description;
-        $quest->type = $data['type'] ?? $quest->type;
-        $quest->reward = (int)( $data['reward'] ?? $quest->reward );
-        $quest->min_participants = (int)( $data['min_participants'] ?? $quest->min_participants );
-        $quest->deadline = !empty( $data['deadline'] ) ? $data['deadline'] : null;
+        if ( $quest->status !== 'draft' )
+        {
+            throw new \application\exceptions\ValidationException( 'Редактировть можно только квесты в черновиках' );
+        }
+
+        if ( $quest->user_id !== new UserService( new \application\repositories\UserRepository )->getCurrentUser()?->id ?? 0 )
+        {
+            throw new \application\exceptions\ForbiddenException( 'Недостаточно прав для редактирования чужих квестов' );
+        }
+
+        $quest->fill( $data );
         $quest->updated_at = time();
 
         $quest->validate();
-        $quest->save();
+        $this->_repository->save( $quest );
 
         return $quest;
     }
 
-    public static function publishQuest( \application\models\Quest $quest ) : \application\models\Quest
+    /**
+     * @throws \Krugozor\Database\MySqlException
+     * @throws \application\exceptions\ValidationException
+     */
+    public function publish( \application\models\Quest $quest ) : \application\models\Quest
     {
-        if ( $quest->status !== \application\models\Quest::STATUS_DRAFT )
+        if ( $quest->status !== 'draft' )
         {
             throw new \application\exceptions\ValidationException( 'Можно публиковать только черновики' );
         }
 
-        $quest->status = \application\models\Quest::STATUS_ACTIVE;
+        $quest->status = 'active';
         $quest->updated_at = time();
-        $quest->save();
+        $this->_repository->save( $quest );
 
         return $quest;
     }
 
-    public static function deleteQuest( \application\models\Quest $quest ) : void
+    /**
+     * @throws \Krugozor\Database\MySqlException
+     * @throws \application\exceptions\ForbiddenException
+     * @throws \application\exceptions\ValidationException
+     */
+    public function delete( \application\models\Quest $quest ) : void
     {
-        \application\models\Quest::deleteById( $quest->id );
-    }
-
-    public static function validateQuestData( array $data ) : array
-    {
-        $errors = [];
-
-        if ( empty( $data['title'] ) || mb_strlen( $data['title'] ) < 3 )
+        if ( $quest->status !== 'draft' )
         {
-            $errors['title'] = 'Название квеста должно содержать не менее 3 символов';
+            throw new \application\exceptions\ValidationException( 'Удалять можно только квесты в черновиках' );
         }
 
-        if ( empty( $data['description'] ) )
+        if ( $quest->user_id !== new UserService( new \application\repositories\UserRepository )->getCurrentUser()?->id ?? 0 )
         {
-            $errors['description'] = 'Описание квеста не может быть пустым';
+            throw new \application\exceptions\ForbiddenException( 'Недостаточно прав для удаления чужих квестов' );
         }
 
-        $validTypes = [ \application\models\Quest::TYPE_INDIVIDUAL, \application\models\Quest::TYPE_COLLECTIVE, \application\models\Quest::TYPE_TIMED ];
-        if ( !in_array( $data['type'] ?? '', $validTypes ) )
-        {
-            $errors['type'] = 'Неверный тип квеста';
-        }
-
-        $reward = (int)( $data['reward'] ?? 0 );
-        if ( $reward < 1 || $reward > 1000 )
-        {
-            $errors['reward'] = 'Награда должна быть от 1 до 1000 XP';
-        }
-
-        if ( ( $data['type'] ?? '' ) === \application\models\Quest::TYPE_COLLECTIVE && ( (int)( $data['min_participants'] ?? 0 ) < 2 ) )
-        {
-            $errors['min_participants'] = 'Для коллективного квеста нужно минимум 2 участника';
-        }
-
-        if ( ( $data['type'] ?? '' ) === \application\models\Quest::TYPE_TIMED && empty( $data['deadline'] ) )
-        {
-            $errors['deadline'] = 'Для квеста с лимитом времени обязательна дата';
-        }
-
-        if ( !empty( $data['deadline'] ) && strtotime( $data['deadline'] ) <= time() )
-        {
-            $errors['deadline'] = 'Нельзя установить дедлайн задним числом';
-        }
-
-        return $errors;
+        $this->_repository->delete( $quest->id );
     }
 
 }

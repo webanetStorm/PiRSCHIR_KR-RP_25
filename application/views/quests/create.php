@@ -42,8 +42,7 @@
         <div class="radio-group">
             <?php foreach ( $questTypes as $value => $label ): ?>
                 <label class="radio-item">
-                    <input type="radio" name="type" value="<?= $value ?>"
-                        <?= ( $_POST['type'] ?? \application\models\Quest::TYPE_INDIVIDUAL ) === $value ? 'checked' : '' ?>>
+                    <input type="radio" name="type" value="<?= $value ?>" <?= ( $_POST['type'] ?? \application\models\Quest::TYPE_INDIVIDUAL ) === $value ? 'checked' : '' ?>>
                     <span><?= htmlspecialchars( $label ) ?></span>
                 </label>
             <?php endforeach ?>

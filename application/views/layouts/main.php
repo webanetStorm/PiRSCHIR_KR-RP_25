@@ -11,7 +11,8 @@
  * @var string $content
  * @var array $cssFiles
  */
-?>
+
+$currentUser = new \application\services\UserService( new \application\repositories\UserRepository() )->getCurrentUser() ?>
 
 <!DOCTYPE html>
 <html lang="ru">
@@ -31,10 +32,10 @@
                         <div class="header__top top">
                             <h2 class="top__site-name"><?= APP_NAME ?></h2>
                             <div class="top__user">
-                                <?php if ( \application\services\UserService::isLoggedIn() ): $user = \application\services\UserService::getCurrentUser() ?>
+                                <?php if ( $currentUser ): ?>
                                     <div class="user-menu">
-                                        <div class="user-menu__avatar"><?= $user->getAvatarLetters() ?></div>
-                                        <a href="/auth/profile" class="user-menu__name"><?= htmlspecialchars( $user->name ) ?></a>
+                                        <div class="user-menu__avatar"><?= $currentUser->getAvatarLetters() ?></div>
+                                        <a href="/auth/profile" class="user-menu__name"><?= $currentUser->name ?></a>
                                     </div>
                                 <?php else: ?>
                                     <div class="auth-links">
@@ -52,7 +53,7 @@
                                 <li class="menu__item">
                                     <a class="menu__link <?= ( $this->_route['controller'] ?? '' ) === 'quests' && ( $this->_route['action'] ?? '' ) === 'index' ? 'menu__link--active' : '' ?>" href="/quests">📋 Все квесты</a>
                                 </li>
-                                <?php if ( \application\services\UserService::isLoggedIn() ): ?>
+                                <?php if ( $currentUser ): ?>
                                     <li class="menu__item">
                                         <a class="menu__link <?= ( $this->_route['controller'] ?? '' ) === 'quests' && ( $this->_route['action'] ?? '' ) === 'create' ? 'menu__link--active' : '' ?>" href="/quests/create">🎯 Создать квест</a>
                                     </li>
@@ -83,6 +84,6 @@
         </div>
         <?php if ( $this->_route['controller'] === 'quests' ): ?>
             <script src="/public/scripts/quests.js"></script>
-        <?php endif; ?>
+        <?php endif ?>
     </body>
 </html>

@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS `quests` (
   `description` TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `type` ENUM('individual', 'collective', 'timed') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'individual',
   `reward` INT NOT NULL DEFAULT 20,
-  `min_participants` INT NOT NULL DEFAULT 0,
+  `min_participants` INT NULL DEFAULT NULL,
   `deadline` DATETIME NULL DEFAULT NULL,
   `status` ENUM('draft', 'active', 'completed') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'draft',
   `created_at` INT NOT NULL,

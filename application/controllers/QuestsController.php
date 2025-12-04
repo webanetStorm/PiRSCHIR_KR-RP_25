@@ -9,22 +9,50 @@
 namespace application\controllers;
 
 
-use JetBrains\PhpStorm\NoReturn;
-
-
 class QuestsController extends \application\core\Controller
 {
 
-    public function indexAction() : void
+    private \application\repositories\QuestRepository $_questRepository;
+
+    private \application\services\QuestService $_questService;
+
+
+    public function __construct( array $route )
     {
-        $quests = \application\models\Quest::getActive();
+        parent::__construct( $route );
+
+        $this->_questService = new \application\services\QuestService( $this->_questRepository = new \application\repositories\QuestRepository );
+    }
+
+    /**
+     * @throws \Krugozor\Database\MySqlException
+     */
+    public function actionIndex() : void
+    {
+        $quests = $this->_questRepository->findActive();
 
         $this->view->render( 'Список квестов', compact( 'quests' ) );
     }
 
-    public function createAction() : void
+    /**
+     * @throws \application\exceptions\NotFoundHttpException
+     * @throws \Krugozor\Database\MySqlException
+     */
+    public function actionView() : void
     {
-        $this->checkAccess();
+        if ( !( $quest = $this->_questRepository->findById( (int)( $this->route['id'] ?? 0 ) ) ) )
+        {
+            throw new \application\exceptions\NotFoundHttpException;
+        }
+
+        $user = $this->currentUser;
+        $isOwner = $quest->user_id === $user?->id;
+
+        $this->view->render( 'Просмотр квеста', compact( 'quest', 'user', 'isOwner' ) );
+    }
+
+    public function actionCreate() : void
+    {
         $error = '';
         $success = false;
 
@@ -32,7 +60,7 @@ class QuestsController extends \application\core\Controller
         {
             try
             {
-                \application\services\QuestService::createQuest( $_POST, \application\services\UserService::getCurrentUser()->id );
+                $this->_questService->create( $_POST, $this->currentUser );
                 $success = true;
             }
             catch ( \application\exceptions\ValidationException $e )
@@ -52,15 +80,15 @@ class QuestsController extends \application\core\Controller
         ] );
     }
 
-    public function updateAction() : void
+    /**
+     * @throws \Krugozor\Database\MySqlException
+     * @throws \application\exceptions\NotFoundHttpException
+     */
+    public function actionUpdate() : void
     {
-        $this->checkAccess();
-
-        $quest = \application\models\Quest::findById( (int)( $this->route['id'] ?? 0 ) );
-
-        if ( $quest->user_id !== \application\services\UserService::getCurrentUser()->id )
+        if ( !( $quest = $this->_questRepository->findById( (int)( $this->route['id'] ?? 0 ) ) ) )
         {
-            $this->view->errorCode( 403 );
+            throw new \application\exceptions\NotFoundHttpException;
         }
 
         $error = '';
@@ -70,10 +98,10 @@ class QuestsController extends \application\core\Controller
         {
             try
             {
-                \application\services\QuestService::updateQuest( $quest, $_POST );
+                $this->_questService->update( $quest, $_POST );
                 $success = true;
             }
-            catch ( \application\exceptions\ValidationException $e )
+            catch ( \Exception $e )
             {
                 $error = $e->getMessage();
             }
@@ -91,64 +119,63 @@ class QuestsController extends \application\core\Controller
         ] );
     }
 
-    public function viewAction() : void
+    /**
+     * @throws \Krugozor\Database\MySqlException
+     */
+    public function actionMy() : void
     {
-        if ( !( $quest = \application\models\Quest::findById( (int)( $this->route['id'] ?? 0 ) ) ) )
-        {
-            $this->view->errorCode( 404 );
-        }
-
-        $user = \application\services\UserService::getCurrentUser();
-        $isOwner = $quest->user_id === $user?->id;
-
-        $this->view->render( 'Просмотр квеста', compact( 'quest', 'user', 'isOwner' ) );
-    }
-
-    public function myAction() : void
-    {
-        $this->checkAccess();
-
-        $quests = \application\models\Quest::findByUserId( \application\services\UserService::getCurrentUser()->id );
+        $quests = $this->_questRepository->findByUserId( $this->currentUser?->id ?? 0 );
 
         $this->view->render( 'Мои квесты', compact( 'quests' ) );
     }
 
-    #[NoReturn]
-    public function publishAction() : void
+    /**
+     * @throws \application\exceptions\NotFoundHttpException
+     * @throws \application\exceptions\ForbiddenException
+     * @throws \Krugozor\Database\MySqlException
+     */
+    public function actionPublish() : void
     {
-        $this->checkAccess();
-
-        $quest = \application\models\Quest::findById( (int)( $this->route['id'] ?? 0 ) );
-
-        if ( !$quest || $quest->user_id !== \application\services\UserService::getCurrentUser()->id )
+        if ( !( $quest = $this->_questRepository->findById( (int)( $this->route['id'] ?? 0 ) ) ) )
         {
-            $this->view->errorCode( 403 );
+            throw new \application\exceptions\NotFoundHttpException;
+        }
+
+        if ( $quest->user_id !== $this->currentUser->id )
+        {
+            throw new \application\exceptions\ForbiddenException;
         }
 
         try
         {
-            \application\services\QuestService::publishQuest( $quest );
-            $this->view->redirect( '/quests' );
+            $this->_questService->publish( $quest );
         }
-        catch ( \application\exceptions\ValidationException $e )
+        catch ( \application\exceptions\ValidationException )
         {
-            $this->view->errorCode( 400 );
         }
+
+        $this->view->redirect( '/quests' );
     }
 
-    #[NoReturn]
-    public function deleteAction() : void
+    /**
+     * @throws \application\exceptions\NotFoundHttpException
+     * @throws \application\exceptions\ForbiddenException
+     * @throws \Krugozor\Database\MySqlException
+     */
+    public function actionDelete() : void
     {
-        $this->checkAccess();
-
-        $quest = \application\models\Quest::findById( (int)( $this->route['id'] ?? 0 ) );
-
-        if ( !$quest || $quest->user_id !== \application\services\UserService::getCurrentUser()->id )
+        if ( !( $quest = $this->_questRepository->findById( (int)( $this->route['id'] ?? 0 ) ) ) )
         {
-            $this->view->errorCode( 403 );
+            throw new \application\exceptions\NotFoundHttpException;
         }
 
-        \application\services\QuestService::deleteQuest( $quest );
+        if ( $quest->user_id !== $this->currentUser->id )
+        {
+            throw new \application\exceptions\ForbiddenException;
+        }
+
+        $this->_questService->delete( $quest );
+
         $this->view->redirect( '/quests/my' );
     }
 

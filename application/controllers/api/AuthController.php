@@ -9,146 +9,65 @@
 namespace application\controllers\api;
 
 
-use JetBrains\PhpStorm\NoReturn;
-
-
 class AuthController extends ApiController
 {
 
-    public function loginAction() : void
+    public function actionLogin() : void
     {
         try
         {
             $data = $this->getJsonInput();
 
-            $email = trim( $data['email'] ?? '' );
-            $password = $data['password'] ?? '';
-
-            if ( empty( $email ) || empty( $password ) )
-            {
-                $this->error( 'Заполните все поля' );
-            }
-
-            if ( !( $user = \application\models\User::login( $email, $password ) ) )
-            {
-                $this->error( 'Неверный email или пароль', [], 401 );
-            }
+            $user = $this->userService->login( trim( $data['email'] ?? '' ), trim( $data['password'] ?? '' ) );
 
             $this->success( [
                 'token' => $this->generateToken( $user ),
                 'user'  => $user->toArray()
-            ], 'Успешный вход' );
-
+            ], 'Успешная авторизация' );
         }
         catch ( \Exception $e )
         {
-            $this->error( 'Ошибка при входе: ' . $e->getMessage(), [], 500 );
+            $this->error( "Ошибка при входе: {$e->getMessage()}", $e->getCode() );
         }
     }
 
-    public function registerAction() : void
+    public function actionRegister() : void
     {
         try
         {
             $data = $this->getJsonInput();
 
-            $email = trim( $data['email'] ?? '' );
-            $password = $data['password'] ?? '';
-            $name = trim( $data['name'] ?? '' );
+            $data = [
+                'email'    => trim( $data['email'] ?? '' ),
+                'password' => trim( $data['password'] ?? '' ),
+                'name'     => trim( $data['name'] ?? '' ),
+            ];
 
-            if ( empty( $email ) || empty( $password ) || empty( $name ) )
-            {
-                $this->error( 'Заполните все поля' );
-            }
-
-            if ( mb_strlen( $password ) < 4 )
-            {
-                $this->error( 'Пароль должен содержать не менее 4 символов' );
-            }
-
-            $user = \application\models\User::register( [
-                'email'    => $email,
-                'password' => $password,
-                'name'     => $name,
-                'role'     => 'user'
-            ] );
+            $user = $this->userService->register( $data );
 
             $this->success( [
                 'token' => $this->generateToken( $user ),
                 'user'  => $user->toArray()
-            ], 'Регистрация успешна' );
+            ], 'Успешная регистрация' );
 
-        }
-        catch ( \application\exceptions\ValidationException $e )
-        {
-            $this->error( $e->getMessage(), [], 422 );
         }
         catch ( \Exception $e )
         {
-            $this->error( 'Ошибка при регистрации: ' . $e->getMessage(), [], 500 );
+            $this->error( "Ошибка при регистрации: {$e->getMessage()}", $e->getCode() );
         }
     }
 
-    #[NoReturn]
-    public function logoutAction() : void
+    public function actionProfile() : void
     {
         try
         {
-            $this->success( [], 'Успешный выход из системы' );
+            $this->checkAccess();
+
+            $this->success( $this->currentUser->toArray() );
         }
         catch ( \Exception $e )
         {
-            $this->error( 'Ошибка при выходе: ' . $e->getMessage() );
-        }
-    }
-
-    public function profileAction() : void
-    {
-        try
-        {
-            $this->requireApiAuth();
-
-            if ( !$this->user )
-            {
-                $this->error( 'Пользователь не найден', [], 404 );
-            }
-
-            $this->success( $this->user->toArray() );
-        }
-        catch ( \application\exceptions\UnauthorizedException $e )
-        {
-            $this->error( $e->getMessage(), [], 401 );
-        }
-    }
-
-    private function generateToken( \application\models\User $user ) : string
-    {
-        $payload = [
-            'user_id' => $user->id,
-            'email'   => $user->email,
-            'role'    => $user->role,
-            'exp'     => time() + ( 24 * 60 * 60 )
-        ];
-
-        return base64_encode( json_encode( $payload ) );
-    }
-
-    public static function validateToken( string $token ) : ?array
-    {
-        try
-        {
-            $decoded = json_decode( base64_decode( $token ), true );
-
-            if ( !$decoded || !isset( $decoded['exp'] ) || $decoded['exp'] < time() )
-            {
-                return null;
-            }
-
-            return $decoded;
-        }
-        catch ( \Exception )
-        {
-            return null;
+            $this->error( $e->getMessage(), $e->getCode() );
         }
     }
 

@@ -12,58 +12,29 @@ namespace application\core;
 abstract class Controller
 {
 
-    public array $route;
+    protected array $route;
 
-    public View $view;
+    protected View $view;
+
+    protected \application\services\UserService $userService;
+
+    protected ?\application\models\User $currentUser;
 
 
+    /**
+     * @throws \application\exceptions\UnauthorizedException
+     * @throws \Krugozor\Database\MySqlException
+     * @throws \application\exceptions\DomainException
+     */
     public function __construct( array $route )
     {
         $this->route = $route;
         $this->view = new View( $route );
-    }
 
-    protected function getUserContext() : array
-    {
-        if ( $user = \application\services\UserService::getCurrentUser() )
-        {
-            return [
-                'role'  => $user->role,
-                'id'    => $user->id,
-                'email' => $user->email,
-                'name'  => $user->name
-            ];
-        }
+        $this->userService = new \application\services\UserService( new \application\repositories\UserRepository );
+        $this->currentUser = $this->userService->getCurrentUser();
 
-        return [ 'role' => 'guest', 'id' => 0 ];
-    }
-
-    protected function checkAccess( ?string $action = null ) : void
-    {
-        $ctx = $this->getUserContext();
-
-        new \application\services\AccessService( $ctx['role'] )
-            ->checkAccess( $this->route['controller'], $action ?? ( $this->route['action'] ?? 'index' ) );
-
-        $this->route['_user'] = $ctx;
-    }
-
-    protected function requireAuth() : void
-    {
-        if ( !\application\services\UserService::isLoggedIn() )
-        {
-            $this->view->redirect( '/auth/login' );
-        }
-    }
-
-    protected function requireRole( string $role ) : void
-    {
-        $this->requireAuth();
-
-        if ( \application\services\UserService::getCurrentUser()->role !== $role )
-        {
-            throw new \application\exceptions\UnauthorizedException( 'Недостаточно прав' );
-        }
+        new \application\services\AccessService( $this->currentUser?->role ?? 'guest' )->check( $this->route['controller'], $this->route['action'] ?? 'index' );
     }
 
 }

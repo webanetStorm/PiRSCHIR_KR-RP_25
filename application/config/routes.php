@@ -23,7 +23,6 @@ return array (
 
     'api/auth/login'    => array ( 'controller' => 'api/auth', 'action' => 'login' ),
     'api/auth/register' => array ( 'controller' => 'api/auth', 'action' => 'register' ),
-    'api/auth/logout'   => array ( 'controller' => 'api/auth', 'action' => 'logout' ),
     'api/auth/profile'  => array ( 'controller' => 'api/auth', 'action' => 'profile' ),
 
     'api/quests'                  => array ( 'controller' => 'api/quests', 'action' => 'index' ),

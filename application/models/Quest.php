@@ -12,9 +12,6 @@ namespace application\models;
 class Quest extends \application\core\Model
 {
 
-    protected const string TABLE = 'quests';
-
-
     public const string TYPE_INDIVIDUAL = 'individual';
 
     public const string TYPE_COLLECTIVE = 'collective';
@@ -30,47 +27,47 @@ class Quest extends \application\core\Model
 
     public int $id = 0;
 
-    public int $user_id;
+    public int $user_id = 0;
 
-    public string $title;
+    public string $title = '';
 
-    public string $description;
+    public string $description = '';
 
-    public string $type;
+    public string $type = self::TYPE_INDIVIDUAL;
 
-    public int $reward;
+    public int $reward = 0;
 
-    public int $min_participants = 0;
+    public ?int $min_participants = null;
 
     public ?string $deadline = null;
 
     public string $status = self::STATUS_DRAFT;
 
-    public int $created_at;
+    public int $created_at = 0;
 
-    public int $updated_at;
+    public int $updated_at = 0;
 
 
-    public static function createByArray( array $data ) : self
+    public function toArray() : array
     {
-        $quest = new self;
-
-        $quest->user_id = (int)( $data['user_id'] ?? 0 );
-        $quest->title = trim( $data['title'] ?? '' );
-        $quest->description = trim( $data['description'] ?? '' );
-        $quest->type = $data['type'] ?? self::TYPE_INDIVIDUAL;
-        $quest->reward = (int)( $data['reward'] ?? 20 );
-        $quest->min_participants = (int)( $data['min_participants'] ?? 0 );
-        $quest->deadline = !empty( $data['deadline'] ) ? $data['deadline'] : null;
-        $quest->status = $data['status'] ?? self::STATUS_DRAFT;
-        $quest->created_at = time();
-        $quest->updated_at = time();
-
-        $quest->validate();
-
-        return $quest;
+        return [
+            'id'               => $this->id,
+            'user_id'          => $this->user_id,
+            'title'            => $this->title,
+            'description'      => $this->description,
+            'type'             => $this->type,
+            'reward'           => $this->reward,
+            'min_participants' => $this->min_participants,
+            'deadline'         => $this->deadline,
+            'status'           => $this->status,
+            'created_at'       => $this->created_at,
+            'updated_at'       => $this->updated_at
+        ];
     }
 
+    /**
+     * @throws \application\exceptions\ValidationException
+     */
     public function validate() : void
     {
         if ( empty( $this->title ) || mb_strlen( $this->title ) < 3 )
@@ -107,84 +104,6 @@ class Quest extends \application\core\Model
         {
             throw new \application\exceptions\ValidationException( 'Нельзя установить дедлайн задним числом' );
         }
-    }
-
-    public function save() : void
-    {
-        $deadlinePlaceholder = $this->deadline === null ? '?n' : '"?s"';
-
-        if ( $this->id )
-        {
-            self::db()->query( "UPDATE `quests` SET `title` = '?s', `description` = '?s', `type` = '?s', `reward` = ?i, `min_participants` = ?i, `deadline` = $deadlinePlaceholder, `status` = '?s', `updated_at` = ?i WHERE `id` = ?i", $this->title, $this->description, $this->type, $this->reward, $this->min_participants, $this->deadline, $this->status, time(), $this->id );
-        }
-        else
-        {
-            self::db()->query( "INSERT INTO `quests` (`user_id`, `title`, `description`, `type`, `reward`, `min_participants`, `deadline`, `status`, `created_at`, `updated_at`) VALUES (?i, '?s', '?s', '?s', ?i, ?i, $deadlinePlaceholder, '?s', ?i, ?i)", $this->user_id, $this->title, $this->description, $this->type, $this->reward, $this->min_participants, $this->deadline, $this->status, time(), time() );
-
-            $this->id = self::db()->getLastInsertId();
-        }
-    }
-
-    public static function findById( int $id ) : ?self
-    {
-        $row = self::db()->query( "SELECT * FROM `quests` WHERE `id` = ?i LIMIT 1", $id )->fetchAssoc();
-
-        return $row ? self::createFromRow( $row ) : null;
-    }
-
-    public static function findByUserId( int $userId ) : array
-    {
-        $rows = self::db()->query( "SELECT * FROM `quests` WHERE `user_id` = ?i", $userId )->fetchAssocArray();
-
-        return array_map( [ self::class, 'createFromRow' ], $rows );
-    }
-
-    public static function getActive() : array
-    {
-        $rows = self::db()->query( "SELECT * FROM `quests` WHERE `status` = '?s'", 'active' )->fetchAssocArray();
-
-        return array_map( [ self::class, 'createFromRow' ], $rows );
-    }
-
-    public static function deleteById( int $id ) : void
-    {
-        self::db()->query( "DELETE FROM `quests` WHERE `id` = ?i", $id );
-    }
-
-    private static function createFromRow( array $row ) : self
-    {
-        $quest = new self;
-
-        $quest->id = (int)$row['id'];
-        $quest->user_id = (int)$row['user_id'];
-        $quest->title = $row['title'];
-        $quest->description = $row['description'];
-        $quest->type = $row['type'];
-        $quest->reward = (int)$row['reward'];
-        $quest->min_participants = (int)$row['min_participants'];
-        $quest->deadline = $row['deadline'];
-        $quest->status = $row['status'];
-        $quest->created_at = (int)$row['created_at'];
-        $quest->updated_at = (int)$row['updated_at'];
-
-        return $quest;
-    }
-
-    public function toArray() : array
-    {
-        return [
-            'id'               => $this->id,
-            'user_id'          => $this->user_id,
-            'title'            => $this->title,
-            'description'      => $this->description,
-            'type'             => $this->type,
-            'reward'           => $this->reward,
-            'min_participants' => $this->min_participants,
-            'deadline'         => $this->deadline,
-            'status'           => $this->status,
-            'created_at'       => $this->created_at,
-            'updated_at'       => $this->updated_at
-        ];
     }
 
 }

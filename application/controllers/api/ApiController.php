@@ -21,17 +21,27 @@ abstract class ApiController
 
     protected int $statusCode = 200;
 
-    protected ?\application\models\User $user = null;
+    protected ?\application\repositories\UserRepository $userRepository = null;
+
+    protected ?\application\services\UserService $userService = null;
+
+    protected ?\application\models\User $currentUser = null;
 
 
     public function __construct( array $route )
     {
-        $this->route = $route;
-        $this->setupCors();
         $this->setJsonResponse();
+        $this->setupCors();
+
+        $this->route = $route;
+        $this->userService = new \application\services\UserService( $this->userRepository = new \application\repositories\UserRepository );
     }
 
-    protected function requireApiAuth() : void
+    /**
+     * @throws \application\exceptions\UnauthorizedException
+     * @throws \Krugozor\Database\MySqlException
+     */
+    private function requireApiAuth() : void
     {
         $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
 
@@ -40,54 +50,52 @@ abstract class ApiController
             throw new \application\exceptions\UnauthorizedException( 'Требуется авторизация' );
         }
 
-        $token = substr( $authHeader, 7 );
-        $tokenData = AuthController::validateToken( $token );
-
-        if ( !$tokenData )
+        if ( !( $tokenData = $this->validateToken( substr( $authHeader, 7 ) ) ) )
         {
             throw new \application\exceptions\UnauthorizedException( 'Неверный или просроченный токен' );
         }
 
-        $user = \application\models\User::findById( $tokenData['user_id'] );
-
-        if ( !$user )
+        if ( !( $this->currentUser = $this->userRepository->findById( $tokenData['user_id'] ) ) )
         {
             throw new \application\exceptions\UnauthorizedException( 'Пользователь не найден' );
         }
-
-        $this->user = $user;
     }
 
-    protected function checkAccess( string $action = 'index' ) : void
+    /**
+     * @throws \application\exceptions\UnauthorizedException
+     * @throws \Krugozor\Database\MySqlException
+     * @throws \application\exceptions\DomainException
+     * @throws \application\exceptions\ForbiddenException
+     */
+    protected function checkAccess() : void
     {
         $this->requireApiAuth();
 
-        new \application\services\AccessService( $this->user->role ?? 'guest' )->checkAccess( $this->route['controller'], $action );
+        new \application\services\AccessService( $this->currentUser?->role ?? 'guest' )->check( $this->route['controller'], $this->route['action'] ?? 'index' );
     }
 
-    protected function setupCors() : void
+    private function setupCors() : void
     {
         header( 'Access-Control-Allow-Origin: *' );
-        header( 'Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS' );
+        header( 'Access-Control-Allow-Methods: GET, POST, PATCH, DELETE, OPTIONS' );
         header( 'Access-Control-Allow-Headers: Content-Type, Authorization' );
 
         if ( $_SERVER['REQUEST_METHOD'] === 'OPTIONS' )
         {
             http_response_code( 200 );
+
             exit;
         }
     }
 
-    protected function setJsonResponse() : void
+    private function setJsonResponse() : void
     {
         header( 'Content-Type: application/json; charset=utf-8' );
     }
 
     protected function getJsonInput() : array
     {
-        $data = json_decode( file_get_contents( 'php://input' ), true );
-
-        return is_array( $data ) ? $data : [];
+        return is_array( $data = json_decode( file_get_contents( 'php://input' ), true ) ) ? $data : [];
     }
 
     #[NoReturn]
@@ -113,35 +121,43 @@ abstract class ApiController
     }
 
     #[NoReturn]
-    protected function error( string $message, array $errors = [], int $code = 400 ) : void
+    protected function error( string $message, int $code = 400 ) : void
     {
         $this->statusCode = $code;
 
-        $this->response = [
-            'success' => false,
-            'message' => $message,
-            'errors'  => $errors
-        ];
+        $this->response = [ 'success' => false, 'message' => $message ];
 
         $this->sendResponse();
     }
 
     #[NoReturn]
-    protected function validationError( array $errors ) : void
-    {
-        $this->error( 'Ошибка валидации', $errors, 422 );
-    }
-
-    #[NoReturn]
     protected function notFound() : void
     {
-        $this->error( 'Ресурс не найден', [], 404 );
+        $this->error( 'Ресурс не найден', 404 );
     }
 
-    #[NoReturn]
-    protected function forbidden() : void
+    protected function generateToken( \application\models\User $user ) : string
     {
-        $this->error( 'Доступ запрещен', [], 403 );
+        $payload = [
+            'user_id' => $user->id,
+            'email'   => $user->email,
+            'role'    => $user->role,
+            'exp'     => time() + ( 24 * 60 * 60 )
+        ];
+
+        return base64_encode( json_encode( $payload ) );
+    }
+
+    private function validateToken( string $token ) : ?array
+    {
+        $decoded = json_decode( base64_decode( $token ), true );
+
+        if ( $decoded && isset( $decoded['exp'] ) && $decoded['exp'] > time() )
+        {
+            return $decoded;
+        }
+
+        return null;
     }
 
 }

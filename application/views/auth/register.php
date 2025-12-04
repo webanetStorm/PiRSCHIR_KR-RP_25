@@ -16,12 +16,12 @@
             <p class="card__subtitle">Создавайте квесты и зарабатывайте опыт</p>
         </div>
         <div class="card__body">
-            <?php if ( $error ): ?>
+            <?php if ( isset( $error ) && $error ): ?>
                 <div class="alert alert--error">
                     <div class="alert__icon">⚠️</div>
                     <div class="alert__content"><?= htmlspecialchars( $error ) ?></div>
                 </div>
-            <?php endif;?>
+            <?php endif ?>
             <form class="form" method="post">
                 <div class="form__group">
                     <label class="form__label" for="name">Имя игрока</label>

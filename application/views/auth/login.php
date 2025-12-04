@@ -16,7 +16,7 @@
             <p class="card__subtitle">Система пользовательских квестов</p>
         </div>
         <div class="card__body">
-            <?php if ( $error ): ?>
+            <?php if ( isset( $error ) && $error ): ?>
                 <div class="alert alert--error">
                     <div class="alert__icon">⚠️</div>
                     <div class="alert__content"><?= htmlspecialchars( $error ) ?></div>

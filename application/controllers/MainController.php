@@ -12,7 +12,7 @@ namespace application\controllers;
 class MainController extends \application\core\Controller
 {
 
-    public function indexAction() : void
+    public function actionIndex() : void
     {
         $this->view->render( 'Главная', [ 'isLoggedIn'  => \application\services\UserService::isLoggedIn() ] );
     }

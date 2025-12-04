@@ -15,105 +15,66 @@ use JetBrains\PhpStorm\NoReturn;
 class AuthController extends \application\core\Controller
 {
 
-    public function loginAction() : void
+    public function actionLogin() : void
     {
-        $error = '';
-
         if ( $_POST )
         {
             try
             {
-                $email = trim( $_POST['email'] ?? '' );
-                $password = $_POST['password'] ?? '';
+                $this->userService->login( trim( $_POST['email'] ?? '' ), trim( $_POST['password'] ?? '' ) );
 
-                if ( empty( $email ) || empty( $password ) )
-                {
-                    $error = 'Заполните все поля';
-                }
-                else
-                {
-                    if ( $user = \application\models\User::login( $email, $password ) )
-                    {
-                        \application\services\UserService::login( $user );
-                        $this->view->redirect( '/' );
-                    }
-                    else
-                    {
-                        $error = 'Неверный email или пароль';
-                    }
-                }
-            }
-            catch ( \Exception $e )
-            {
-                $error = "Ошибка при входе: {$e->getMessage()}";
-            }
-        }
-
-        $this->view->render( 'Вход в Quelyd', compact( 'error' ) );
-    }
-
-    public function registerAction() : void
-    {
-        $error = '';
-
-        if ( $_POST )
-        {
-            try
-            {
-                $email = trim( $_POST['email'] ?? '' );
-                $password = $_POST['password'] ?? '';
-                $name = trim( $_POST['name'] ?? '' );
-
-                if ( empty( $email ) || empty( $password ) || empty( $name ) )
-                {
-                    $error = 'Заполните все поля';
-                }
-                elseif ( mb_strlen( $password ) < 4 )
-                {
-                    $error = 'Пароль должен содержать не менее 6 символов';
-                }
-                else
-                {
-                    $user = \application\models\User::register( [
-                        'email'    => $email,
-                        'password' => $password,
-                        'name'     => $name,
-                        'role'     => 'user'
-                    ] );
-
-                    \application\services\UserService::login( $user );
-
-                    $this->view->redirect( '/' );
-                }
-
+                $this->view->redirect( 'profile' );
             }
             catch ( \application\exceptions\ValidationException $e )
             {
-                $error = $e->getMessage();
-            }
-            catch ( \Exception $e )
-            {
-                $error = 'Ошибка при регистрации: ' . $e->getMessage();
+                $this->view->render( 'Вход', [ 'error' => $e->getMessage() ] );
+
+                return;
             }
         }
 
-        $this->view->render( 'Регистрация в Quelyd', compact( 'error' ) );
+        $this->view->render( 'Вход' );
     }
 
-    #[NoReturn]
-    public function logoutAction() : void
+    public function actionRegister() : void
     {
-        session_unset();
-        session_destroy();
+        if ( $_POST )
+        {
+            try
+            {
+                $data = [
+                    'email'    => trim( $_POST['email'] ?? '' ),
+                    'password' => trim( $_POST['password'] ?? '' ),
+                    'name'     => trim( $_POST['name'] ?? '' ),
+                ];
+
+                $this->userService->register( $data );
+
+                $this->view->redirect( 'login' );
+            }
+            catch ( \application\exceptions\ValidationException $e )
+            {
+                $this->view->render( 'Регистрация', [ 'error' => $e->getMessage() ] );
+
+                return;
+            }
+        }
+
+        $this->view->render( 'Регистрация' );
+    }
+
+
+    #[NoReturn]
+    public function actionLogout() : void
+    {
+        $this->userService->logout();
 
         $this->view->redirect( '/' );
     }
 
-    public function profileAction() : void
+    public function actionProfile() : void
     {
-        $this->checkAccess();
-
-        $user = \application\services\UserService::getCurrentUser();
+        $user = $this->currentUser;
 
         $this->view->render( 'Профиль пользователя', compact( 'user' ) );
     }

@@ -14,24 +14,21 @@ use JetBrains\PhpStorm\NoReturn;
 class View
 {
 
-    private string $_path;
+    private string $_layout = 'main';
 
     private array $_route;
-
-    private string $_layout = 'main';
 
 
     public function __construct( array $route )
     {
         $this->_route = $route;
-        $this->_path = $route['controller'] . '/' . $route['action'];
     }
 
     public function render( string $title, array $vars = [] ) : void
     {
         extract( $vars );
 
-        if ( file_exists( $path = 'application/views/' . $this->_path . '.php' ) )
+        if ( file_exists( $path = 'application/views/' . $this->_route['controller'] . '/' . $this->_route['action'] . '.php' ) )
         {
             ob_start();
             require $path;

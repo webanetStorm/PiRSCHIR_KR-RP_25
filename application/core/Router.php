@@ -62,7 +62,7 @@ class Router
                 ? 'application\controllers\api\\' . ucfirst( str_replace( 'api/', '', $this->_params['controller'] ) ) . 'Controller'
                 : 'application\controllers\\' . ucfirst( $this->_params['controller'] ) . 'Controller';
 
-            $action = $this->_params['action'] . 'Action';
+            $action = 'action' . ucfirst( $this->_params['action'] );
 
             if ( class_exists( $controller ) )
             {

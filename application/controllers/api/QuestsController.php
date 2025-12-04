@@ -12,184 +12,145 @@ namespace application\controllers\api;
 class QuestsController extends ApiController
 {
 
-    public function indexAction() : void
+    private \application\repositories\QuestRepository $_questRepository;
+
+    private \application\services\QuestService $_questService;
+
+
+    public function __construct( array $route )
+    {
+        parent::__construct( $route );
+
+        $this->_questService = new \application\services\QuestService( $this->_questRepository = new \application\repositories\QuestRepository );
+    }
+
+    public function actionIndex() : void
     {
         try
         {
             $this->checkAccess();
 
-            $this->success( array_map( fn( $quest ) => $quest->toArray(), \application\models\Quest::getActive() ) );
+            $this->success( array_map( fn( $quest ) => $quest->toArray(), $this->_questRepository->findActive() ) );
         }
         catch ( \Exception $e )
         {
-            $this->error( $e->getMessage() );
+            $this->error( $e->getMessage(), $e->getCode() );
         }
     }
 
-    public function viewAction() : void
+    public function actionView() : void
     {
         try
         {
             $this->checkAccess();
 
-            if ( !( $id = (int)( $this->route['id'] ?? 0 ) ) )
-            {
-                $this->error( 'ID квеста не указан' );
-            }
-
-            if ( !( $quest = \application\models\Quest::findById( $id ) ) )
+            if ( !( $quest = $this->_questRepository->findById( (int)( $this->route['id'] ?? 0 ) ) ) )
             {
                 $this->notFound();
             }
 
-            $isOwner = $this->user && $quest->user_id === $this->user->id;
-
-            if ( $quest->status !== \application\models\Quest::STATUS_ACTIVE && !$isOwner )
-            {
-                $this->forbidden();
-            }
-
             $questData = $quest->toArray();
-            $questData['is_owner'] = $isOwner;
+            $questData['is_owner'] = $quest->user_id === $this->currentUser?->id;
 
             $this->success( $questData );
 
         }
         catch ( \Exception $e )
         {
-            $this->error( $e->getMessage() );
+            $this->error( $e->getMessage(), $e->getCode() );
         }
     }
 
-    public function myAction() : void
+    public function actionMy() : void
     {
         try
         {
-            $this->requireApiAuth();
+            $this->checkAccess();
 
-            $this->success( array_map( fn( $quest ) => $quest->toArray(), \application\models\Quest::findByUserId( $this->user->id ) ) );
-
-        }
-        catch ( \application\exceptions\UnauthorizedException $e )
-        {
-            $this->error( $e->getMessage(), [], 401 );
+            $this->success( array_map( fn( $quest ) => $quest->toArray(), $this->_questRepository->findByUserId( $this->currentUser->id ) ) );
         }
         catch ( \Exception $e )
         {
-            $this->error( $e->getMessage() );
+            $this->error( $e->getMessage(), $e->getCode() );
         }
     }
 
-    public function createAction() : void
+    public function actionCreate() : void
     {
         try
         {
-            $this->requireApiAuth();
-            $this->checkAccess( 'create' );
+            $this->checkAccess();
 
-            $data = $this->getJsonInput();
-
-            if ( $errors = \application\services\QuestService::validateQuestData( $data ) )
-            {
-                $this->validationError( $errors );
-            }
-
-            $quest = \application\services\QuestService::createQuest( $data, $this->user );
+            $quest = $this->_questService->create( $this->getJsonInput(), $this->currentUser );
 
             $this->success( $quest->toArray(), 'Квест успешно создан' );
         }
-        catch ( \application\exceptions\UnauthorizedException $e )
-        {
-            $this->error( $e->getMessage(), [], 401 );
-        }
-        catch ( \application\exceptions\ValidationException $e )
-        {
-            $this->error( $e->getMessage(), [], 422 );
-        }
         catch ( \Exception $e )
         {
-            $this->error( 'Внутренняя ошибка сервера: ' . $e->getMessage(), [], 500 );
+            $this->error( $e->getMessage(), $e->getCode() );
         }
     }
 
-    public function updateAction() : void
+    public function actionUpdate() : void
     {
         try
         {
-            $this->requireApiAuth();
+            $this->checkAccess();
 
-            if ( !( $quest = \application\models\Quest::findById( (int)( $this->route['id'] ?? 0 ) ) ) )
+            if ( !( $quest = $this->_questRepository->findById( (int)( $this->route['id'] ?? 0 ) ) ) )
             {
                 $this->notFound();
             }
 
-            if ( $quest->user_id !== $this->user->id )
-            {
-                $this->forbidden();
-            }
-
-            $quest = \application\services\QuestService::updateQuest( $quest, $this->getJsonInput() );
+            $quest = $this->_questService->update( $quest, $this->getJsonInput() );
 
             $this->success( $quest->toArray(), 'Квест успешно обновлен' );
         }
         catch ( \Exception $e )
         {
-            $this->error( $e->getMessage(), [], 422 );
+            $this->error( $e->getMessage(), $e->getCode() );
         }
     }
 
-    public function deleteAction() : void
+    public function actionDelete() : void
     {
         try
         {
-            $this->requireApiAuth();
+            $this->checkAccess();
 
-            $questId = (int)( $this->route['id'] ?? 0 );
-            $quest = \application\models\Quest::findById( $questId );
-
-            if ( !$quest )
+            if ( !( $quest = $this->_questRepository->findById( (int)( $this->route['id'] ?? 0 ) ) ) )
             {
                 $this->notFound();
             }
 
-            if ( $quest->user_id !== $this->user->id )
-            {
-                $this->forbidden();
-            }
+            $this->_questService->delete( $quest );
 
-            \application\services\QuestService::deleteQuest( $quest );
-
-            $this->success( [], 'Квест успешно удален' );
+            $this->success( $quest->toArray(), 'Квест успешно удален' );
         }
         catch ( \Exception $e )
         {
-            $this->error( $e->getMessage() );
+            $this->error( $e->getMessage(), $e->getCode() );
         }
     }
 
-    public function publishAction() : void
+    public function actionPublish() : void
     {
         try
         {
-            $this->requireApiAuth();
+            $this->checkAccess();
 
-            if ( !( $quest = \application\models\Quest::findById( (int)( $this->route['id'] ?? 0 ) ) ) )
+            if ( !( $quest = $this->_questRepository->findById( (int)( $this->route['id'] ?? 0 ) ) ) )
             {
                 $this->notFound();
             }
 
-            if ( $quest->user_id !== $this->user->id )
-            {
-                $this->forbidden();
-            }
-
-            $quest = \application\services\QuestService::publishQuest( $quest );
+            $quest = $this->_questService->publish( $quest );
 
             $this->success( $quest->toArray(), 'Квест успешно опубликован' );
         }
         catch ( \Exception $e )
         {
-            $this->error( $e->getMessage(), [], 422 );
+            $this->error( $e->getMessage(), $e->getCode() );
         }
     }
 

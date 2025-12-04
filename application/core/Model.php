@@ -12,19 +12,23 @@ namespace application\core;
 abstract class Model
 {
 
-    private static ?\Krugozor\Database\Mysql $_connection = null;
-
-
-    protected static function db() : \Krugozor\Database\Mysql
+    public function __construct( ?array $data = null )
     {
-        if ( self::$_connection instanceof \Krugozor\Database\Mysql )
+        if ( $data !== null )
         {
-            return self::$_connection;
+            $this->fill( $data );
         }
+    }
 
-        return self::$_connection = \Krugozor\Database\Mysql::create( DB_HOST, DB_USER, DB_PASS )
-            ->setDatabaseName( DB_NAME )
-            ->setCharset( DB_CHARSET );
+    public function fill( array $data ) : void
+    {
+        foreach ( $data as $key => $value )
+        {
+            if ( property_exists( $this, $key ) )
+            {
+                $this->$key = $value;
+            }
+        }
     }
 
     abstract public function validate();
