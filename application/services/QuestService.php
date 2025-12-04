@@ -104,4 +104,21 @@ class QuestService
         $this->_repository->delete( $quest->id );
     }
 
+    /**
+     * @throws \Krugozor\Database\MySqlException
+     */
+    public function approve( \application\models\Quest $quest ) : void
+    {
+        $quest->is_approved = true;
+        $this->_repository->save( $quest );
+    }
+
+    /**
+     * @throws \Krugozor\Database\MySqlException
+     */
+    public function reject( \application\models\Quest $quest ) : void
+    {
+        $this->_repository->delete( $quest->id );
+    }
+
 }

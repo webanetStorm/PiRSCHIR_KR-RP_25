@@ -21,6 +21,10 @@ return array (
     'quests/update/{id:\d+}'  => array ( 'controller' => 'quests', 'action' => 'update' ),
     'quests/delete/{id:\d+}'  => array ( 'controller' => 'quests', 'action' => 'delete' ),
 
+    'admin/moderate'         => array ( 'controller' => 'admin', 'action' => 'moderate' ),
+    'admin/approve/{id:\d+}' => array ( 'controller' => 'admin', 'action' => 'approve' ),
+    'admin/reject/{id:\d+}'  => array ( 'controller' => 'admin', 'action' => 'reject' ),
+
     'api/auth/login'    => array ( 'controller' => 'api/auth', 'action' => 'login' ),
     'api/auth/register' => array ( 'controller' => 'api/auth', 'action' => 'register' ),
     'api/auth/profile'  => array ( 'controller' => 'api/auth', 'action' => 'profile' ),
@@ -32,4 +36,8 @@ return array (
     'api/quests/{id:\d+}/update'  => array ( 'controller' => 'api/quests', 'action' => 'update' ),
     'api/quests/{id:\d+}/delete'  => array ( 'controller' => 'api/quests', 'action' => 'delete' ),
     'api/quests/{id:\d+}/publish' => array ( 'controller' => 'api/quests', 'action' => 'publish' ),
+
+    'api/admin'                  => array ( 'controller' => 'api/admin', 'action' => 'index' ),
+    'api/admin/approve/{id:\d+}' => array ( 'controller' => 'api/admin', 'action' => 'approve' ),
+    'api/admin/reject/{id:\d+}'  => array ( 'controller' => 'api/admin', 'action' => 'reject' ),
 );

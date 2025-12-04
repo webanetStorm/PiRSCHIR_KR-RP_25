@@ -20,6 +20,7 @@ CREATE TABLE IF NOT EXISTS `quests` (
   `min_participants` INT NULL DEFAULT NULL,
   `deadline` DATETIME NULL DEFAULT NULL,
   `status` ENUM('draft', 'active', 'completed') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'draft',
+  `is_approved` BOOLEAN NOT NULL DEFAULT FALSE,
   `created_at` INT NOT NULL,
   `updated_at` INT NOT NULL,
   FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE

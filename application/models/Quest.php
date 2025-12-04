@@ -43,6 +43,8 @@ class Quest extends \application\core\Model
 
     public string $status = self::STATUS_DRAFT;
 
+    public bool $is_approved = false;
+
     public int $created_at = 0;
 
     public int $updated_at = 0;
@@ -60,6 +62,7 @@ class Quest extends \application\core\Model
             'min_participants' => $this->min_participants,
             'deadline'         => $this->deadline,
             'status'           => $this->status,
+            'is_approved'      => $this->is_approved,
             'created_at'       => $this->created_at,
             'updated_at'       => $this->updated_at
         ];

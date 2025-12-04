@@ -22,6 +22,10 @@ return array (
     'quests.delete'  => array ( 'user', 'admin' ),
     'quests.join'    => array ( 'user', 'admin' ),
 
+    'admin.moderate' => array ( 'admin' ),
+    'admin.approve'  => array ( 'admin' ),
+    'admin.reject'   => array ( 'admin' ),
+
     'api/auth.login'    => array ( 'guest', 'user', 'admin' ),
     'api/auth.register' => array ( 'guest', 'user', 'admin' ),
     'api/auth.profile'  => array ( 'user', 'admin' ),
@@ -33,4 +37,8 @@ return array (
     'api/quests.update'  => array ( 'user', 'admin' ),
     'api/quests.delete'  => array ( 'user', 'admin' ),
     'api/quests.publish' => array ( 'user', 'admin' ),
+
+    'api/admin.index'   => array ( 'admin' ),
+    'api/admin.approve' => array ( 'admin' ),
+    'api/admin.reject'  => array ( 'admin' ),
 );

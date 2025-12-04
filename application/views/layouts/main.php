@@ -63,9 +63,11 @@ $currentUser = new \application\services\UserService( new \application\repositor
                                 <?php endif ?>
                             </ul>
                             <ul class="menu__list">
-                                <li class="menu__item">
-                                    <a class="menu__link <?= ( $this->_route['controller'] ?? '' ) === 'admin' ? 'menu__link--active' : '' ?>" href="/admin">⚙️ Модерация</a>
-                                </li>
+                                <?php if ( $currentUser->role === 'admin' ): ?>
+                                    <li class="menu__item">
+                                        <a class="menu__link <?= ( $this->_route['controller'] ?? '' ) === 'admin' ? 'menu__link--active' : '' ?>" href="/admin/moderate">⚙️ Модерация</a>
+                                    </li>
+                                <?php endif ?>
                                 <li class="menu__item">
                                     <a class="menu__link" href="/auth/logout">🚪 Выйти</a>
                                 </li>
