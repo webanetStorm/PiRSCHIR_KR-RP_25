@@ -12,9 +12,6 @@ namespace application\services;
 class UserService
 {
 
-    use \application\core\InstanceTrait;
-
-
     private \application\repositories\UserRepository $_userRepository;
 
 
