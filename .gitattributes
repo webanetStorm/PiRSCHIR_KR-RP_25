@@ -1,0 +1,9 @@
+*.php linguist-language=PHP
+*.php linguist-detectable=true
+
+*.css linguist-documentation
+*.js linguist-documentation
+*.html linguist-documentation
+*.json linguist-documentation
+*.md linguist-documentation
+*.txt linguist-documentation
