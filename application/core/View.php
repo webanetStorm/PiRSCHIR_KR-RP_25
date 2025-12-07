@@ -8,6 +8,7 @@
 
 namespace application\core;
 
+
 use JetBrains\PhpStorm\NoReturn;
 
 
@@ -49,19 +50,17 @@ class View
     #[NoReturn]
     public function redirect( string $url ) : void
     {
-        header( 'location: ' . $url );
+        header( 'Location: ' . $url );
         exit;
     }
 
     #[NoReturn]
-    public static function errorCode( int $code ) : void
+    public static function renderErrorPage( int $code, string $message ) : void
     {
         http_response_code( $code );
 
-        if ( file_exists( $path = 'application/views/errors/' . $code . '.php' ) )
-        {
-            require $path;
-        }
+        new self( [ 'controller' => 'errors', 'action' => 'error' ] )
+            ->render( 'Ошибка', [ 'code' => $code, 'message' => $message ] );
 
         exit;
     }

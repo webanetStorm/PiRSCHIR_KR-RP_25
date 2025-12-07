@@ -56,33 +56,40 @@ class Router
 
     public function run() : void
     {
-        if ( $this->match() )
+        try
         {
-            $controller = str_starts_with( $this->_params['controller'], 'api/' )
-                ? 'application\controllers\api\\' . ucfirst( str_replace( 'api/', '', $this->_params['controller'] ) ) . 'Controller'
-                : 'application\controllers\\' . ucfirst( $this->_params['controller'] ) . 'Controller';
-
-            $action = 'action' . ucfirst( $this->_params['action'] );
-
-            if ( class_exists( $controller ) )
+            if ( $this->match() )
             {
-                if ( method_exists( $controller, $action ) )
+                $controller = str_starts_with( $this->_params['controller'], 'api/' )
+                    ? 'application\controllers\api\\' . ucfirst( str_replace( 'api/', '', $this->_params['controller'] ) ) . 'Controller'
+                    : 'application\controllers\\' . ucfirst( $this->_params['controller'] ) . 'Controller';
+
+                $action = 'action' . ucfirst( $this->_params['action'] );
+
+                if ( class_exists( $controller ) )
                 {
-                    new $controller( $this->_params )->$action();
+                    if ( method_exists( $controller, $action ) )
+                    {
+                        new $controller( $this->_params )->$action();
+                    }
+                    else
+                    {
+                        throw new \application\exceptions\NotFoundHttpException;
+                    }
                 }
                 else
                 {
-                    View::errorCode( 404 );
+                    throw new \application\exceptions\NotFoundHttpException;
                 }
             }
             else
             {
-                View::errorCode( 404 );
+                throw new \application\exceptions\NotFoundHttpException;
             }
         }
-        else
+        catch ( \application\exceptions\NotFoundHttpException | \application\exceptions\ForbiddenException $e )
         {
-            View::errorCode( 404 );
+            View::renderErrorPage( $e->getCode(), $e->getMessage() );
         }
     }
 
