@@ -45,14 +45,14 @@ class QuestService
      * @throws \application\exceptions\ForbiddenException
      * @throws \Krugozor\Database\MySqlException
      */
-    public function update( \application\models\Quest $quest, array $data ) : \application\models\Quest
+    public function update( \application\models\Quest $quest, array $data, int $userId ) : \application\models\Quest
     {
         if ( $quest->status !== 'draft' )
         {
             throw new \application\exceptions\ValidationException( 'Редактировть можно только квесты в черновиках' );
         }
 
-        if ( $quest->user_id !== new UserService( new \application\repositories\UserRepository )->getCurrentUser()?->id ?? 0 )
+        if ( $quest->user_id !== $userId )
         {
             throw new \application\exceptions\ForbiddenException( 'Недостаточно прав для редактирования чужих квестов' );
         }
@@ -89,14 +89,14 @@ class QuestService
      * @throws \application\exceptions\ForbiddenException
      * @throws \application\exceptions\ValidationException
      */
-    public function delete( \application\models\Quest $quest ) : void
+    public function delete( \application\models\Quest $quest, int $userId ) : void
     {
         if ( $quest->status !== 'draft' )
         {
             throw new \application\exceptions\ValidationException( 'Удалять можно только квесты в черновиках' );
         }
 
-        if ( $quest->user_id !== new UserService( new \application\repositories\UserRepository )->getCurrentUser()?->id ?? 0 )
+        if ( $quest->user_id !== $userId )
         {
             throw new \application\exceptions\ForbiddenException( 'Недостаточно прав для удаления чужих квестов' );
         }

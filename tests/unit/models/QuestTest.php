@@ -22,7 +22,6 @@ class QuestTest extends \PHPUnit\Framework\TestCase
         $q->type = \application\models\Quest::TYPE_COLLECTIVE;
         $q->reward = 50;
         $q->min_participants = 3;
-        $q->deadline = "2030-01-01";
         $q->status = \application\models\Quest::STATUS_ACTIVE;
         $q->created_at = 100;
         $q->updated_at = 200;
@@ -35,8 +34,9 @@ class QuestTest extends \PHPUnit\Framework\TestCase
             'type'             => 'collective',
             'reward'           => 50,
             'min_participants' => 3,
-            'deadline'         => '2030-01-01',
+            'deadline'         => null,
             'status'           => 'active',
+            'is_approved'      => false,
             'created_at'       => 100,
             'updated_at'       => 200
         ], $q->toArray() );

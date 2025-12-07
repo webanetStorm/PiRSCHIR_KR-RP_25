@@ -98,7 +98,7 @@ class QuestsController extends \application\core\Controller
         {
             try
             {
-                $this->_questService->update( $quest, $_POST );
+                $this->_questService->update( $quest, $_POST, $this->currentUser?->id ?? 0 );
                 $success = true;
             }
             catch ( \Exception $e )

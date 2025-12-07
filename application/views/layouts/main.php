@@ -63,7 +63,7 @@ $currentUser = new \application\services\UserService( new \application\repositor
                                 <?php endif ?>
                             </ul>
                             <ul class="menu__list">
-                                <?php if ( $currentUser->role === 'admin' ): ?>
+                                <?php if ( $currentUser && $currentUser->role === 'admin' ): ?>
                                     <li class="menu__item">
                                         <a class="menu__link <?= ( $this->_route['controller'] ?? '' ) === 'admin' ? 'menu__link--active' : '' ?>" href="/admin/moderate">⚙️ Модерация</a>
                                     </li>

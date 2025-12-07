@@ -102,7 +102,7 @@ class QuestsController extends ApiController
                 $this->notFound();
             }
 
-            $quest = $this->_questService->update( $quest, $this->getJsonInput() );
+            $quest = $this->_questService->update( $quest, $this->getJsonInput(), $this->currentUser?->id ?? 0 );
 
             $this->success( $quest->toArray(), 'Квест успешно обновлен' );
         }

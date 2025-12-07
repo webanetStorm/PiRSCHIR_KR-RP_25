@@ -6,7 +6,6 @@
  * Time: 12:00
  */
 
-require __DIR__ . '/../dev.php';
 require __DIR__ . '/../vendor/autoload.php';
 
 spl_autoload_register( function( string $class )

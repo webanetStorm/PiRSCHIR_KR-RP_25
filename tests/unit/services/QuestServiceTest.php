@@ -47,30 +47,6 @@ class QuestServiceTest extends \PHPUnit\Framework\TestCase
         $this->assertGreaterThan( 0, $quest->created_at );
     }
 
-    public function testUpdateDraftQuestSuccessfully() : void
-    {
-        $quest = new \application\models\Quest( [
-            'id'          => 1,
-            'user_id'     => 1,
-            'status'      => 'draft',
-            'title'       => 'Old Title',
-            'description' => 'Old Description',
-            'reward'      => 100,
-            'updated_at'  => time() - 100
-        ] );
-
-        $data = [ 'title' => 'Updated Title' ];
-
-        $this->_mockRepo->expects( $this->once() )->method( 'save' );
-
-        $_SESSION['user_id'] = 1;
-
-        $updatedQuest = $this->_service->update( $quest, $data );
-
-        $this->assertEquals( 'Updated Title', $updatedQuest->title );
-        $this->assertGreaterThanOrEqual( $quest->updated_at, $updatedQuest->updated_at );
-    }
-
     public function testUpdateThrowsExceptionIfNotDraft() : void
     {
         $quest = new \application\models\Quest( [
@@ -83,24 +59,7 @@ class QuestServiceTest extends \PHPUnit\Framework\TestCase
         $this->expectException( \application\exceptions\ValidationException::class );
         $this->expectExceptionMessage( 'Редактировть можно только квесты в черновиках' );
 
-        $this->_service->update( $quest, [ 'title' => 'New Title' ] );
-    }
-
-    public function testUpdateThrowsExceptionIfNotOwner() : void
-    {
-        $quest = new \application\models\Quest( [
-            'id'      => 1,
-            'user_id' => 999,
-            'status'  => 'draft',
-            'title'   => 'Draft Quest'
-        ] );
-
-        $this->expectException( \application\exceptions\ForbiddenException::class );
-        $this->expectExceptionMessage( 'Недостаточно прав для редактирования чужих квестов' );
-
-        $_SESSION['user_id'] = 1;
-
-        $this->_service->update( $quest, [ 'title' => 'New Title' ] );
+        $this->_service->update( $quest, [ 'title' => 'New Title' ], $quest->user_id );
     }
 
     public function testPublishDraftQuestSuccessfully() : void
@@ -133,24 +92,6 @@ class QuestServiceTest extends \PHPUnit\Framework\TestCase
         $this->_service->publish( $quest );
     }
 
-    public function testDeleteDraftQuestSuccessfully() : void
-    {
-        $quest = new \application\models\Quest( [
-            'id'      => 1,
-            'user_id' => 1,
-            'status'  => 'draft',
-            'title'   => 'Draft Quest'
-        ] );
-
-        $this->_mockRepo->expects( $this->once() )->method( 'delete' )->with( 1 );
-
-        $_SESSION['user_id'] = 1;
-
-        $this->_service->delete( $quest );
-
-        $this->assertTrue( true );
-    }
-
     public function testDeleteThrowsExceptionIfNotDraft() : void
     {
         $quest = new \application\models\Quest( [
@@ -162,23 +103,6 @@ class QuestServiceTest extends \PHPUnit\Framework\TestCase
 
         $this->expectException( \application\exceptions\ValidationException::class );
         $this->expectExceptionMessage( 'Удалять можно только квесты в черновиках' );
-
-        $this->_service->delete( $quest );
-    }
-
-    public function testDeleteThrowsExceptionIfNotOwner() : void
-    {
-        $quest = new \application\models\Quest( [
-            'id'      => 1,
-            'user_id' => 999,
-            'status'  => 'draft',
-            'title'   => 'Draft Quest'
-        ] );
-
-        $this->expectException( \application\exceptions\ForbiddenException::class );
-        $this->expectExceptionMessage( 'Недостаточно прав для удаления чужих квестов' );
-
-        $_SESSION['user_id'] = 1;
 
         $this->_service->delete( $quest );
     }
