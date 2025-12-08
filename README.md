@@ -32,16 +32,12 @@ Quelyd — это веб-платформа, позволяющая пользо
 
 ## Установка и запуск
 
-### Требования
-- Docker
-- Docker Compose
-
 ### Шаги
 
 1. Клонируйте репозиторий:
    ```bash
-   git clone <your-repo-url>
-   cd Quelyd
+   git clone https://github.com/webanetStorm/PiRSCHIR_KR-RP_25.git
+   cd PiRSCHIR_KR-RP_25
    ```
 
 2. Установите зависимости:
@@ -86,37 +82,380 @@ Quelyd — это веб-платформа, позволяющая пользо
 
 ### Примеры API-запросов
 
-#### Получить список квестов
+#### Зарегистрировать новый аккаунт
+Пример запроса:
 ```http
-GET /api/quests
+POST http://localhost:8080/api/auth/register
 Content-Type: application/json
-Authorization: Bearer <your_token>
-```
-
-#### Создать квест
-```http
-POST /api/quests/create
-Content-Type: application/json
-Authorization: Bearer <your_token>
 
 {
-  "title": "Пример квеста",
-  "description": "Описание квеста",
-  "type": "individual",
-  "reward": 50
+    "email": "newuser@example.com",
+    "password": "password123",
+    "name": "Новый Пользователь"
+}
+```
+Пример ответа:
+```http
+{
+    "success": true,
+    "message": "Успешная регистрация",
+    "data": {
+        "token": "*******************************************",
+        "user": {
+            "id": 1,
+            "email": "newuser@example.com",
+            "name": "Новый Пользователь",
+            "role": "user"
+        }
+    }
 }
 ```
 
-#### Одобрить квест (админ)
+#### Войти в систему
+Пример запроса:
 ```http
-POST /api/admin/approve/123
-Authorization: Bearer <admin_token>
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+    "email": "admin@quelyd.local",
+    "password": "password"
+}
+```
+Пример ответа:
+```http
+{
+    "success": true,
+    "message": "Успешная авторизация",
+    "data": {
+        "token": "***************************************",
+        "user": {
+            "id": 1,
+            "email": "admin@quelyd.local",
+            "name": "Матвей Блантер",
+            "role": "admin"
+        }
+    }
+}
 ```
 
-#### Получить список квестов на модерацию (админ)
+#### Получить профиль текущего пользователя
+Пример запроса:
 ```http
-GET /api/admin/moderate
-Authorization: Bearer <admin_token>
+GET http://localhost:8080/api/auth/profile
+Authorization: Bearer ********************
+```
+Пример ответа:
+```http
+{
+    "success": true,
+    "data": {
+        "id": 1,
+        "email": "user@example.com",
+        "name": "Test User",
+        "role": "user"
+    }
+}
+```
+
+#### Получить список одобренных квестов
+Пример запроса:
+```http
+GET http://localhost:8080/api/quests
+Authorization: Bearer *********************
+```
+Пример ответа:
+```http
+{
+    "success": true,
+    "data": [
+        {
+            "id": 1,
+            "user_id": 1,
+            "title": "Поиск древнего артефакта",
+            "description": "Найти древний артефакт в руинах старого храма",
+            "type": "collective",
+            "reward": 200,
+            "min_participants": 3,
+            "deadline": "2025-12-31 23:59:59",
+            "status": "active",
+            "is_approved": true,
+            "created_at": 1733154000,
+            "updated_at": 1733154000
+        }
+    ]
+}
+```
+
+#### Получить квест по ID
+Пример запроса:
+```http
+GET http://localhost:8080/api/quests/1
+Authorization: Bearer ********************
+```
+Пример ответа:
+```http
+{
+    "success": true,
+    "data": {
+        "id": 1,
+        "user_id": 1,
+        "title": "Поиск древнего артефакта",
+        "description": "Найти древний артефакт в руинах старого храма",
+        "type": "collective",
+        "reward": 200,
+        "min_participants": 3,
+        "deadline": "2025-12-31 23:59:59",
+        "status": "active",
+        "is_approved": true,
+        "created_at": 1733154000,
+        "updated_at": 1733154000,
+        "is_owner": true
+    }
+}
+```
+
+#### Получить квесты текущего пользователя
+Пример запроса:
+```http
+GET http://localhost:8080/api/quests/my
+Authorization: Bearer ***************************
+```
+Пример ответа:
+```http
+{
+    "success": true,
+    "data": [
+        {
+            "id": 1,
+            "user_id": 1,
+            "title": "Мой первый квест",
+            "description": "Этот квест ещё в черновиках",
+            "type": "individual",
+            "reward": 30,
+            "min_participants": null,
+            "deadline": null,
+            "status": "draft",
+            "is_approved": false,
+            "created_at": 1733154000,
+            "updated_at": 1733154000
+        }
+    ]
+}
+```
+
+#### Создать новый квест
+Пример запроса:
+```http
+POST http://localhost:8080/api/quests/create
+Content-Type: application/json
+Authorization: Bearer ******************
+
+{
+    "title": "Новый квест API",
+    "description": "Квест созданный через API",
+    "type": "timed",
+    "reward": 75,
+    "min_participants": 2,
+    "deadline": "2025-12-25 18:00:00"
+}
+```
+Пример ответа:
+```http
+{
+    "success": true,
+    "message": "Квест успешно создан",
+    "data": {
+        "id": 3,
+        "user_id": 1,
+        "title": "Новый квест API",
+        "description": "Квест созданный через API",
+        "type": "timed",
+        "reward": 75,
+        "min_participants": 2,
+        "deadline": "2025-12-25 18:00:00",
+        "status": "draft",
+        "is_approved": false,
+        "created_at": 1733154200,
+        "updated_at": 1733154200
+    }
+}
+```
+
+#### Обновить квест
+Пример запроса:
+```http
+PATCH http://localhost:8080/api/quests/3/update
+Content-Type: application/json
+Authorization: Bearer ******************
+
+{
+    "title": "Обновлённый квест API",
+    "description": "Обновлённое описание",
+    "reward": 100
+}
+```
+Пример ответа:
+```http
+{
+    "success": true,
+    "message": "Квест успешно обновлен",
+    "data": {
+        "id": 3,
+        "user_id": 1,
+        "title": "Обновлённый квест API",
+        "description": "Обновлённое описание",
+        "type": "timed",
+        "reward": 100,
+        "min_participants": 2,
+        "deadline": "2025-12-25 18:00:00",
+        "status": "draft",
+        "is_approved": false,
+        "created_at": 1733154200,
+        "updated_at": 1733154300
+    }
+}
+```
+
+#### Опубликовать квест (отправить на модерацию)
+Пример запроса:
+```http
+POST http://localhost:8080/api/quests/3/publish
+Authorization: Bearer ******************************
+```
+Пример ответа:
+```http
+{
+    "success": true,
+    "message": "Квест успешно опубликован",
+    "data": {
+        "id": 3,
+        "user_id": 1,
+        "title": "Обновлённый квест API",
+        "description": "Обновлённое описание",
+        "type": "timed",
+        "reward": 100,
+        "min_participants": 2,
+        "deadline": "2025-12-25 18:00:00",
+        "status": "active",
+        "is_approved": false,
+        "created_at": 1733154200,
+        "updated_at": 1733154400
+    }
+}
+```
+
+#### Удалить квест
+Пример запроса:
+```http
+DELETE http://localhost:8080/api/quests/3/delete
+Authorization: Bearer **********************
+```
+Пример ответа:
+```http
+{
+    "success": true,
+    "message": "Квест успешно удален",
+    "data": {
+        "id": 3,
+        "user_id": 1,
+        "title": "Обновлённый квест API",
+        "description": "Обновлённое описание",
+        "type": "timed",
+        "reward": 100,
+        "min_participants": 2,
+        "deadline": "2025-12-25 18:00:00",
+        "status": "draft",
+        "is_approved": false,
+        "created_at": 1733154200,
+        "updated_at": 1733154400
+    }
+}
+```
+
+#### Получить список квестов на модерации
+Пример запроса:
+```http
+GET http://localhost:8080/api/admin
+Authorization: Bearer *******************
+```
+Пример ответа:
+```http
+{
+    "success": true,
+    "data": [
+        {
+            "id": 3,
+            "user_id": 1,
+            "title": "Квест на модерации",
+            "description": "Этот квест ожидает одобрения",
+            "type": "individual",
+            "reward": 50,
+            "min_participants": null,
+            "deadline": null,
+            "status": "active",
+            "is_approved": false,
+            "created_at": 1733154000,
+            "updated_at": 1733154000
+        }
+    ]
+}
+```
+
+#### Одобрить квест
+Пример запроса:
+```http
+POST http://localhost:8080/api/admin/approve/3
+Authorization: Bearer *********************
+```
+Пример ответа:
+```http
+{
+    "success": true,
+    "message": "Квест одобрен",
+    "data": {
+        "id": 3,
+        "user_id": 1,
+        "title": "Квест на модерации",
+        "description": "Этот квест ожидает одобрения",
+        "type": "individual",
+        "reward": 50,
+        "min_participants": null,
+        "deadline": null,
+        "status": "active",
+        "is_approved": true,
+        "created_at": 1733154000,
+        "updated_at": 1733154000
+    }
+}
+```
+
+#### Отклонить квест
+Пример запроса:
+```http
+POST http://localhost:8080/api/admin/reject/3
+Authorization: Bearer ****************************
+```
+Пример ответа:
+```http
+{
+    "success": true,
+    "message": "Квест удалён",
+    "data": {
+        "id": 3,
+        "user_id": 1,
+        "title": "Квест на модерации",
+        "description": "Этот квест ожидает одобрения",
+        "type": "individual",
+        "reward": 50,
+        "min_participants": null,
+        "deadline": null,
+        "status": "active",
+        "is_approved": false,
+        "created_at": 1733154000,
+        "updated_at": 1733154000
+    }
+}
 ```
 
 ## Структура проекта
@@ -127,11 +466,3 @@ Authorization: Bearer <admin_token>
 - `docker/` — конфигурация Docker
 - `init.sql` — скрипт инициализации базы данных
 - `docker-compose.yml` — конфигурация запуска сервисов
-
-## Тестирование
-
-Для запуска тестов выполните:
-```bash
-vendor/bin/phpunit
-```
-```

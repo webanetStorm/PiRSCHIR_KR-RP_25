@@ -123,7 +123,7 @@ class QuestsController extends ApiController
                 $this->notFound();
             }
 
-            $this->_questService->delete( $quest );
+            $this->_questService->delete( $quest, $this->currentUser->id );
 
             $this->success( $quest->toArray(), 'Квест успешно удален' );
         }
